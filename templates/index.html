@@ -1,0 +1,84 @@
+{{template "header.html" .}}
+
+<div class="ui container">
+
+    {{with $success := $.Request.FormValue "success"}}
+        <div class="ui info message">
+            <div class="header">
+                {{if eq $success "settings"}}
+                    Settings saved successfully
+                {{else if eq $success "removed"}}
+                    Property removed successfully
+                {{end}}
+            </div>
+            <a class="close-link" href="/"><i class="close icon"></i></a>
+        </div>
+    {{end}}
+    {{with $error := $.Request.FormValue "error"}}
+        <div class="ui large negative message">
+            <div class="content">
+                <div class="header">
+                    {{if eq $error "adding"}}
+                        Adding property failed
+                    {{else if eq $error "removing"}}
+                        Removing property failed
+                    {{else}}
+                        {{$error}}
+                    {{end}}
+                </div>
+                <a class="close-link" href="/"><i class="close icon"></i></a>
+            </div>
+        </div>
+        <div class="ui hidden divider"></div>
+    {{end}}
+
+    {{if $.Properties}}
+        <div class="ui raised padded segment">
+            <div class="ui huge middle aligned selection divided list">
+                {{range $n, $p := $.Properties}}
+                    <a href="/property/dashboard/{{$p.ID}}" class="item">
+                        <div class="right floated content">
+                            <div class="ui basic icon button"><i class="magnify icon"></i></div>
+                        </div>
+                        <i class="large teal globe icon"></i>
+                        <div class="content">
+                            <div class="header">
+                                {{$p.Name}}
+                            </div>
+                        </div>
+                    </a>
+                {{end}}
+            </div>
+        </div>
+        <div class="ui hidden divider"></div>
+    {{end}}
+
+    <div class="ui raised padded segment">
+        <div class="ui stackable two column grid">
+            <div class="column">
+                <div class="ui hidden divider"></div>
+                <div class="ui huge center aligned icon header">
+                    <i class="teal heartbeat icon"></i>
+                    <div class="content">Frequency Analytics</div>
+                </div>
+                <div class="ui hidden divider"></div>
+            </div>
+            <div class="column">
+                <form class="ui huge form" action="/property/add" method="POST">
+                    <div class="field">
+                        <input name="name" type="text" placeholder="Site name">
+                    </div>
+                    <div class="field">
+                        <input name="domain" type="text" placeholder="example.com">
+                    </div>
+                    <div class="field">
+                        <button type="submit" class="ui huge teal fluid button">Add new site</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+{{template "footer.html" .}}

@@ -1,0 +1,269 @@
+{{template "header.html" .}}
+
+<div class="ui container">
+    {{with $success := $.Request.FormValue "success"}}
+        <div class="ui large info message">
+            <div class="content">
+                <div class="header">
+                    {{if eq $success "added"}}
+                        Property added successfully
+                    {{else}}
+                        {{$success}}
+                    {{end}}
+                </div>
+                <a class="close-link" href="/property/dashboard/{{$.Property.ID}}"><i class="close icon"></i></a>
+            </div>
+        </div>
+        <div class="ui hidden divider"></div>
+    {{end}}
+
+    <div class="ui raised padded segment">
+        <form class="ui huge form" action="/property/dashboard" method="POST">
+            <input type="hidden" name="property" value="{{$.Property.ID}}">
+            <div class="equal width fields">
+                <div class="field">
+                    <input type="text" name="start" placeholder="YYYY/MM/DD" value="{{timestamp $.Start}}">
+                </div>
+                <div class="field">
+                    <input type="text" name="end" placeholder="YYYY/MM/DD" value="{{timestamp $.End}}">
+                </div>
+                <div class="field">
+                    <button type="submit" class="ui huge fluid teal button">Apply</button>
+                </div>
+            </div>
+        </form>
+        <!--img class="ui fluid image" src="/property/chart/pageview/{{$.Property.ID}}?start={{$.Start}}&end={{$.End}}"-->
+
+        {{if $.Stats.Events}}
+            <canvas id="main-chart"></canvas>
+        {{else}}
+            <div class="ui hidden divider"></div>
+            <div class="ui large center aligned header">No events found</div>
+            <div class="ui hidden divider"></div>
+        {{end}}
+    </div>
+
+
+    {{if $.Stats.Events}}
+        <div class="ui two column stackable grid">
+            <div class="column">
+                <div class="ui raised padded segment">
+                    <div class="ui large teal dividing header">
+                        Sources
+                    </div>
+                    <table class="ui large unstackable padded  two column selectable striped table">
+                        <tbody>
+                            <tr>
+                                <td><b>Direct</b></td>
+                                <td class="center aligned">
+                                    {{jsfloat64 $.Stats.Sources.Direct}}%
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><b>Search</b></td>
+                                <td class="center aligned">
+                                    {{jsfloat64 $.Stats.Sources.Search}}%
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><b>Social</b></td>
+                                <td class="center aligned">
+                                    {{jsfloat64 $.Stats.Sources.Social}}%
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><b>Other</b></td>
+                                <td class="center aligned">
+                                    {{jsfloat64 $.Stats.Sources.Other}}%
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <a href="/property/sources/{{$.Property.ID}}?start={{$.Start}}&end={{$.End}}" class="ui large fluid teal button">View more</a>
+                </div>
+            </div>
+            <div class="column">
+                <div class="ui raised padded segment">
+                    <div class="ui large teal dividing header">
+                        Pages
+                    </div>
+                    <table class="ui large unstackable padded  selectable striped table">
+                        <tbody>
+                            {{range $pv := $.Stats.Pages}}
+                                <tr>
+                                    <td title="{{$pv.Path}}">{{truncate $pv.Path 25}}</td>
+                                    <td class="center aligned">{{$pv.Hits}}</td>
+                                </tr>
+                            {{end}}
+                        </tbody>
+                    </table>
+                    <a href="/property/pages/{{$.Property.ID}}?start={{$.Start}}&end={{$.End}}" class="ui large fluid teal button">View more</a>
+                </div>
+            </div>
+            <div class="column">
+                <div class="ui raised padded segment">
+                    <div class="ui large teal dividing header">
+                        Referrers
+                    </div>
+                    <table class="ui large unstackable padded  two column selectable striped table">
+                        <tbody>
+                            {{range $r := $.Stats.Referrers}}
+                                <tr>
+                                    <td title="{{$r.Domain}}">{{truncate $r.Domain 25}}</td>
+                                    <td class="center aligned">{{$r.Hits}}</td>
+                                </tr>
+                            {{end}}
+                        </tbody>
+                    </table>
+                    <a href="/property/referrers/{{$.Property.ID}}?start={{$.Start}}&end={{$.End}}" class="ui large fluid teal button">View more</a>
+                </div>
+            </div>
+            <div class="column">
+                <div class="ui raised padded segment">
+                    <div class="ui large teal dividing header">
+                        Platforms
+                    </div>
+                    <table class="ui large unstackable padded  two column selectable striped table">
+                        <tbody>
+                            {{range $b := $.Stats.Platforms}}
+                                <tr>
+                                    <td title="{{$b.Name}}">{{truncate $b.Name 25}}</td>
+                                    <td class="center aligned">{{$b.Hits}}</td>
+                                </tr>
+                            {{end}}
+                        </tbody>
+                    </table>
+                    <a href="/property/platforms/{{$.Property.ID}}?start={{$.Start}}&end={{$.End}}" class="ui large fluid teal button">View more</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="ui raised padded segment">
+            <div class="ui large teal dividing header">
+                Events
+            </div>
+            <table class="ui large padded  selectable striped table">
+                <thead>
+                    <th>&nbsp;</th>
+                    <th>Referrer</th>
+                    <th>Location</th>
+                    <th>Platform</th>
+                    <th>Time</th>
+                </thead>
+                <tbody>
+                    {{range $e := $.Stats.Events}}
+                    {{$country := ip2country $e.IPAddress}}
+                        <tr>
+                            <td>
+                                {{if $e.Path}}
+                                    {{$e.Path}}
+                                {{else}}
+                                    &mdash;
+                                {{end}}
+                            </td>
+                            <td title="{{$e.Referrer}}">
+                                {{if $e.Referrer}}
+                                    {{url2host $e.Referrer}}
+                                {{else}}
+                                    &mdash;
+                                {{end}}
+                            </td>
+                            <td>
+                                <i class="{{$country}} flag" title="{{$country}}"></i>{{$e.IPAddress}}
+                            </td>
+                            <td>
+                                {{if $e.UserAgent}}
+                                    {{useragent $e.UserAgent}}
+                                {{else}}
+                                    &mdash;
+                                {{end}}
+                            </td>
+                            <td>
+                                <span title="{{$e.Time}}">{{time $e.Time}}</span>
+                            </td>
+                        </tr>
+                    {{end}}
+                </tbody>
+            </table>
+            <a href="/property/events/{{$.Property.ID}}?start={{$.Start}}&end={{$.End}}" class="ui large fluid teal button">View more</a>
+        </div>
+    {{end}}
+
+</div>
+
+{{if $.Stats.Events}}
+    <script>
+        window.chartColors = {
+            red: 'rgb(219, 40, 40)',
+            orange: 'rgb(255, 159, 64)',
+            yellow: 'rgb(255, 205, 86)',
+            green: 'rgb(75, 192, 192)',
+            blue: 'rgb(54, 162, 235)',
+            purple: 'rgb(153, 102, 255)',
+            teal: 'rgb(0, 181, 173)',
+        };
+
+        $(document).ready(function() {
+            var labels = [];
+            var data = [];
+
+        {{range $pv := $.Stats.VisitorsChart}}
+            labels.push(moment.unix({{$pv.Time.Unix}}));
+            data.push({{jsint $pv.Count}});
+        {{end}}
+
+            var mainChartCtx = $('#main-chart');
+
+            var color = Chart.helpers.color;
+            var chart = new Chart(mainChartCtx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        type: 'line',
+                        label: '{{timestamp $.Start}} - {{timestamp $.End}}',
+                        backgroundColor: color(window.chartColors.teal).alpha(0.5).rgbString(),
+                        borderColor: window.chartColors.teal,
+                        data: data,
+                        pointRadius: 0,
+                        fill: true,
+                        lineTension: 0,
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    tooltips: {
+                        enabled: true,
+                        mode: 'index',
+                        intersect: false,
+                        position: 'nearest'
+                    },
+                    scales: {
+                        xAxes: [{
+                            type: 'time',
+                            time: {
+                                unit: 'hour',
+                                displayFormats: {
+                                    hour: 'MM/D'
+                                }
+                            },
+                            distribution: 'series',
+                            ticks: {
+                                source: 'labels'
+                            }
+                        }],
+                        yAxes: [{
+                            scaleLabel: {
+                                display: true,
+                                labelString: 'Visitors'
+                            }
+                        }]
+                    },
+                    responsive: true
+                }
+            });
+        });
+    </script>
+{{end}}
+
+{{template "footer.html" .}}

@@ -1,0 +1,28 @@
+{{template "header.html" .}}
+
+<div class="ui container">
+
+    <div class="ui center aligned one column grid">
+        <div class="column centered-column">
+            <div class="ui raised padded segment">
+                <div class="ui large center aligned header">
+                    Delete property?
+                </div>
+                <div class="ui center aligned header">
+                    {{$.Property.Name}}
+                </div>
+                <div class="ui hidden divider"></div>
+
+                <form action="/property/delete" method="POST">
+                    <input type="hidden" name="property" value="{{$.Property.ID}}">
+                    <div class="two ui buttons">
+                        <a href="/property/settings/{{$.Property.ID}}" class="ui large button"><i class="angle left icon"></i>Cancel</a>
+                        <button type="submit" class="ui large red button confirm" data-prompt="Delete property?">Delete</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+{{template "footer.html" .}}

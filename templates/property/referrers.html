@@ -1,0 +1,42 @@
+{{template "header.html" .}}
+
+<div class="ui container">
+    <a href="/property/dashboard/{{$.Property.ID}}?start={{$.Start}}&end={{$.End}}" class="ui large basic button"><i class="long arrow alternate left icon"></i>Back</a>
+    <div class="ui hidden divider"></div>
+
+    <div class="ui raised padded segment">
+        <form class="ui huge form" action="/property/referrers" method="POST">
+            <input type="hidden" name="property" value="{{$.Property.ID}}">
+            <div class="equal width fields">
+                <div class="field">
+                    <input type="text" name="start" placeholder="Start date" value="{{timestamp $.Start}}">
+                </div>
+                <div class="field">
+                    <input type="text" name="end" placeholder="End date" value="{{timestamp $.End}}">
+                </div>
+                <div class="field">
+                    <button type="submit" class="ui huge fluid teal button">Apply</button>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <div class="ui raised padded segment">
+        <div class="ui large teal dividing header">
+            Referrers
+        </div>
+        <table class="ui large unstackable padded  two column selectable striped table">
+            <tbody>
+                {{range $r := $.Stats.Referrers}}
+                    <tr>
+                        <td title="{{$r.Domain}}">{{truncate $r.Domain 25}}</td>
+                        <td class="center aligned">{{$r.Hits}}</td>
+                    </tr>
+                {{end}}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{{template "footer.html" .}}
+

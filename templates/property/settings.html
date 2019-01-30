@@ -1,0 +1,70 @@
+{{template "header.html" .}}
+
+<div class="ui container">
+    {{with $success := $.Request.FormValue "success"}}
+        <div class="ui large info message">
+            <div class="content">
+                <div class="header">
+                    {{if eq $success "changes"}}
+                        Changes saved successfully
+                    {{else}}
+                        {{$success}}
+                    {{end}}
+                </div>
+                <a class="close-link" href="/property/settings/{{$.Property.ID}}"><i class="close icon"></i></a>
+            </div>
+        </div>
+        <div class="ui hidden divider"></div>
+    {{end}}
+
+    <div class="ui raised padded segment">
+        <div class="ui huge teal dividing header">
+            Settings
+        </div>
+        <div class="ui hidden divider"></div>
+
+        <form class="ui huge form" action="/property/settings" method="POST" novalidate autocomplete="off">
+            <input type="hidden" name="property" value="{{$.Property.ID}}">
+            <div class="equal width fields">
+                <div class="field">
+                    <div class="ui small header">Name</div>
+                    <input name="name" type="text" placeholder="Example Name" value="{{$.Property.Name}}">
+                </div>
+                <div class="field">
+                    <div class="ui small header">Domain</div>
+                    <input name="domain" type="text" placeholder="example.com" value="{{$.Property.Domain}}">
+                </div>
+            </div>
+            <div class="equal width fields">
+                <div class="field">
+                    <div class="ui small header">ID</div>
+                    <input type="text" value="{{$.Property.ID}}" disabled title="Cannot modify property ID">
+                </div>
+                <div class="field">
+                    <div class="ui small header">Created</div>
+                    <input type="text" value="{{$.Property.Created}}" disabled title="Cannot modify property creation time">
+                </div>
+            </div>
+            <div class="equal width fields">
+                <div class="field mobile hidden">&nbsp;</div>
+                <div class="field mobile hidden">&nbsp;</div>
+                <div class="field">
+                    <button type="submit" class="ui huge fluid teal button">Save Changes</button>
+                </div>
+            </div>
+        </form>
+
+    </div>
+
+    <div class="ui hidden section divider"></div>
+
+    <div class="ui raised padded segment">
+        <a href="/property/delete/{{$.Property.ID}}" class="ui red right floated button">Delete</a>
+        <div class="ui hidden divider"></div>
+        <div class="ui hidden divider"></div>
+    </div>
+
+</div>
+
+{{template "footer.html" .}}
+
