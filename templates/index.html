@@ -33,8 +33,8 @@
     {{end}}
 
     {{if $.Properties}}
-        <div class="ui raised padded segment">
-            <div class="ui huge middle aligned selection divided list">
+        <div class="ui padded segment">
+            <div class="ui large middle aligned selection divided list">
                 {{range $n, $p := $.Properties}}
                     <a href="/property/dashboard/{{$p.ID}}" class="item">
                         <div class="right floated content">
@@ -53,18 +53,18 @@
         <div class="ui hidden divider"></div>
     {{end}}
 
-    <div class="ui raised padded segment">
+    <div class="ui padded segment">
         <div class="ui stackable two column grid">
             <div class="column">
                 <div class="ui hidden divider"></div>
-                <div class="ui huge center aligned icon header">
+                <div class="ui large center aligned icon header">
                     <i class="teal heartbeat icon"></i>
                     <div class="content">Frequency Analytics</div>
                 </div>
                 <div class="ui hidden divider"></div>
             </div>
             <div class="column">
-                <form class="ui huge form" action="/property/add" method="POST">
+                <form class="ui large form" action="/property/add" method="POST">
                     <div class="field">
                         <input name="name" type="text" placeholder="Site name">
                     </div>
@@ -72,7 +72,7 @@
                         <input name="domain" type="text" placeholder="example.com">
                     </div>
                     <div class="field">
-                        <button type="submit" class="ui huge teal fluid button">Add new site</button>
+                        <button type="submit" class="ui large teal fluid button">Add new site</button>
                     </div>
                 </form>
             </div>

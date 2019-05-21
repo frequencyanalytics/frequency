@@ -12,6 +12,14 @@ body {
     background-color: #fdfdfd !important;
 }
 
+.left-aligned {
+    text-align: left;
+}
+
+.right-aligned {
+    text-align: right;
+}
+
 .center-aligned {
     text-align: center;
 }
@@ -66,3 +74,6 @@ pre.code {
     line-height: 1.6em;
 }
 
+.readonly-input {
+    background-color: #f1f1f1 !important;
+}

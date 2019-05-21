@@ -1,0 +1,19 @@
+{{template "header.html" .}}
+
+<div class="ui container">
+    <div class="ui padded segment">
+        <div class="ui hidden section divider"></div>
+        {{with $domain := $.Info.Domain}}
+            <div class="ui large center aligned header">
+                Redirecting to {{$.Info.Domain}} in 2 seconds...
+            </div>
+            <meta http-equiv="refresh" content="2; url=https://{{$.Info.Domain}}/">
+        {{end}}
+        <div class="ui hidden section divider"></div>
+        <div class="center-aligned">
+            <a href="/signin" class="ui large button">Admin Sign In</a>
+        </div>
+    </div>
+</div>
+
+{{template "footer.html" .}}

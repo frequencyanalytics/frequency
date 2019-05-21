@@ -24,6 +24,8 @@ Frequency Analytics is an open source web analytics tool that tracks and reports
   * Pageviews by user operating system.
 * **Events**
   * Detailed list of site events.
+* **Single Sign-On (SSO) with SAML**
+  * Support for SAML providers like G Suite and Okta.
 
 ## Run Frequency Analytics on Portal Cloud
 

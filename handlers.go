@@ -10,10 +10,11 @@ import (
 	"strings"
 	"time"
 
+	useragent "github.com/mssola/user_agent"
+
+	"github.com/julienschmidt/httprouter"
 	"golang.org/x/crypto/bcrypt"
 	"golang.org/x/net/publicsuffix"
-	//chart "github.com/wcharczuk/go-chart"
-	useragent "github.com/mssola/user_agent"
 )
 
 var (
@@ -24,6 +25,29 @@ var (
 	// Base64
 	transparentPNG = "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAACklEQVR4nGMAAQAABQABDQottAAAAABJRU5ErkJggg=="
 )
+
+func domainHandler(w *Web) {
+	w.HTML()
+}
+
+func ssoHandler(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+	if token := samlSP.GetAuthorizationToken(r); token != nil {
+		http.Redirect(w, r, "/", http.StatusFound)
+		return
+	}
+	logger.Debugf("SSO: require account handler")
+	samlSP.RequireAccountHandler(w, r)
+	return
+}
+
+func samlHandler(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+	if samlSP == nil {
+		Error(w, fmt.Errorf("SAML is not configured"))
+		return
+	}
+	logger.Debugf("SSO: samlSP.ServeHTTP")
+	samlSP.ServeHTTP(w, r)
+}
 
 func pingHandler(w *Web) {
 	property := w.r.FormValue("property")
@@ -41,7 +65,7 @@ func pingHandler(w *Web) {
 	screenHeight, _ := strconv.Atoi(w.r.FormValue("height"))
 	timezone, _ := strconv.Atoi(w.r.FormValue("timezone"))
 	language := w.r.FormValue("language")
-	timestamp := time.Now().Unix()
+	timestamp := time.Now().In(getTimezone()).Unix()
 
 	// Save events from non-bots.
 	if !useragent.New(userAgent).Bot() {
@@ -104,11 +128,10 @@ func configureHandler(w *Web) {
 		return nil
 	})
 
-	sessionCookie, err := NewSessionCookie(w.r)
-	if err != nil {
-		panic(err)
+	if err := w.SigninSession(true); err != nil {
+		Error(w.w, err)
+		return
 	}
-	http.SetCookie(w.w, sessionCookie)
 	w.Redirect("/")
 	return
 }
@@ -179,17 +202,16 @@ func forgotHandler(w *Web) {
 		return nil
 	})
 
-	sessionCookie, err := NewSessionCookie(w.r)
-	if err != nil {
-		panic(err)
+	if err := w.SigninSession(true); err != nil {
+		Error(w.w, err)
+		return
 	}
-	http.SetCookie(w.w, sessionCookie)
 	w.Redirect("/")
 	return
 }
 
 func signoutHandler(w *Web) {
-	http.SetCookie(w.w, NewDeletionCookie())
+	w.SignoutSession()
 	w.Redirect("/signin")
 }
 
@@ -211,11 +233,10 @@ func signinHandler(w *Web) {
 		w.Redirect("/signin?error=invalid")
 		return
 	}
-	sessionCookie, err := NewSessionCookie(w.r)
-	if err != nil {
-		panic(err)
+	if err := w.SigninSession(true); err != nil {
+		Error(w.w, err)
+		return
 	}
-	http.SetCookie(w.w, sessionCookie)
 
 	w.Redirect("/")
 }
@@ -273,6 +294,8 @@ func settingsHandler(w *Web) {
 	currentPassword := w.r.FormValue("current_password")
 	newPassword := w.r.FormValue("new_password")
 	domain := strings.TrimSpace(w.r.FormValue("domain"))
+	location := w.r.FormValue("location")
+	samlMetadata := strings.TrimSpace(w.r.FormValue("saml_metadata"))
 
 	if currentPassword != "" || newPassword != "" {
 		if !validPassword.MatchString(newPassword) {
@@ -298,13 +321,34 @@ func settingsHandler(w *Web) {
 		})
 	}
 
+	// Timezone
+	if location != "" {
+		if err := setTimezone(location); err != nil {
+			Error(w.w, err)
+			return
+		}
+	}
+
 	config.UpdateInfo(func(i *Info) error {
+		i.SAML.IDPMetadata = samlMetadata
 		i.Email = email
 		i.Domain = domain
+		i.Location = location
 		return nil
 	})
 
-	w.Redirect("/?success=settings")
+	// Configure SAML if metadata is present.
+	if len(samlMetadata) > 0 {
+		if err := configureSAML(); err != nil {
+			logger.Warnf("configuring SAML failed: %s", err)
+			w.Redirect("/settings?error=saml")
+			return
+		}
+	} else {
+		samlSP = nil
+	}
+
+	w.Redirect("/settings?success=settings")
 }
 
 func helpHandler(w *Web) {
@@ -378,7 +422,7 @@ func dashboardPropertyHandler(w *Web) {
 		return
 	}
 
-	now := time.Now()
+	now := time.Now().In(getTimezone())
 
 	if w.r.Method == "POST" {
 		start, _ := time.ParseInLocation("2006/01/02", w.r.FormValue("start"), now.Location())
@@ -400,6 +444,10 @@ func dashboardPropertyHandler(w *Web) {
 
 	start, _ := strconv.ParseInt(w.r.FormValue("start"), 10, 64)
 	end, _ := strconv.ParseInt(w.r.FormValue("end"), 10, 64)
+
+	if start == 0 && end == 0 {
+		w.Request.Form.Set("selected", "30days")
+	}
 
 	if start == 0 {
 		start = now.AddDate(0, 0, -30).Unix()
@@ -424,6 +472,10 @@ func dashboardPropertyHandler(w *Web) {
 		Events:        stat.Events(10, 1),
 	}
 
+	w.DaysAgo7 = now.AddDate(0, 0, -7).Unix()
+	w.DaysAgo30 = now.AddDate(0, 0, -30).Unix()
+	w.DaysAgo90 = now.AddDate(0, 0, -90).Unix()
+
 	w.Property = property
 	w.Start = start
 	w.End = end
@@ -442,7 +494,7 @@ func sourcesPropertyHandler(w *Web) {
 		return
 	}
 
-	now := time.Now()
+	now := time.Now().In(getTimezone())
 
 	if w.r.Method == "POST" {
 		start, _ := time.ParseInLocation("2006/01/02", w.r.FormValue("start"), now.Location())
@@ -498,7 +550,7 @@ func pagesPropertyHandler(w *Web) {
 		return
 	}
 
-	now := time.Now()
+	now := time.Now().In(getTimezone())
 
 	if w.r.Method == "POST" {
 		start, _ := time.ParseInLocation("2006/01/02", w.r.FormValue("start"), now.Location())
@@ -554,7 +606,7 @@ func referrersPropertyHandler(w *Web) {
 		return
 	}
 
-	now := time.Now()
+	now := time.Now().In(getTimezone())
 
 	if w.r.Method == "POST" {
 		start, _ := time.ParseInLocation("2006/01/02", w.r.FormValue("start"), now.Location())
@@ -610,7 +662,7 @@ func platformsPropertyHandler(w *Web) {
 		return
 	}
 
-	now := time.Now()
+	now := time.Now().In(getTimezone())
 
 	if w.r.Method == "POST" {
 		start, _ := time.ParseInLocation("2006/01/02", w.r.FormValue("start"), now.Location())
@@ -666,7 +718,7 @@ func eventsPropertyHandler(w *Web) {
 		return
 	}
 
-	now := time.Now()
+	now := time.Now().In(getTimezone())
 
 	if w.r.Method == "POST" {
 		start, _ := time.ParseInLocation("2006/01/02", w.r.FormValue("start"), now.Location())
@@ -773,40 +825,3 @@ func settingsPropertyHandler(w *Web) {
 
 	w.Redirect("/property/settings/%s?success=changes", property.ID)
 }
-
-/*
-func pageviewChartHandler(w *Web) {
-	property, err := config.FindProperty(w.ps.ByName("property"))
-	if err != nil {
-		http.NotFound(w.w, w.r)
-		return
-	}
-	start, _ := strconv.ParseInt(w.r.FormValue("start"), 10, 64)
-	end, _ := strconv.ParseInt(w.r.FormValue("end"), 10, 64)
-
-	stat := NewStat(property.ID, start, end)
-	xvalues := []time.Time{}
-	yvalues := []float64{}
-
-	for _, pv := range stat.PageViewChart(start, end, "") {
-		xvalues = append(xvalues, pv.Time)
-		yvalues = append(yvalues, float64(pv.Hits))
-		//logger.Printf("CHART VALUE X/Y %s %d", pv.Time, pv.Hits)
-	}
-
-	graph := chart.Chart{
-		XAxis: chart.XAxis{
-			Style: chart.StyleShow(),
-		},
-		Series: []chart.Series{
-			chart.TimeSeries{
-				XValues: xvalues,
-				YValues: yvalues,
-			},
-		},
-	}
-
-	w.w.Header().Set("Content-Type", "image/png")
-	graph.Render(chart.PNG, w.w)
-}
-*/

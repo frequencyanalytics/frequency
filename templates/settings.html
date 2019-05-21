@@ -1,10 +1,40 @@
 {{template "header.html" .}}
 
-<div class="ui hidden divider"></div>
-
 <div class="ui container">
-    <div class="ui raised padded segment">
-        <div class="ui huge teal dividing header">Settings</div>
+
+    {{with $success := $.Request.FormValue "success"}}
+        <div class="ui info message">
+            <div class="header">
+                {{if eq $success "settings"}}
+                    Settings saved successfully
+                {{else if eq $success "removed"}}
+                    Property removed successfully
+                {{end}}
+            </div>
+            <a class="close-link" href="/"><i class="close icon"></i></a>
+        </div>
+    {{end}}
+    {{with $error := $.Request.FormValue "error"}}
+        <div class="ui large negative message">
+            <div class="content">
+                <div class="header">
+                    {{if eq $error "saml"}}
+                        Configuring SAML failed.
+                    {{else}}
+                        {{$error}}
+                    {{end}}
+                </div>
+                <a class="close-link" href="/"><i class="close icon"></i></a>
+            </div>
+        </div>
+        <div class="ui hidden divider"></div>
+    {{end}}
+
+
+
+    <div class="ui padded segment">
+
+        <div class="ui large teal dividing header">System Settings</div>
         <div class="ui hidden divider"></div>
 
         {{with $error := .Request.FormValue "error"}}
@@ -22,28 +52,607 @@
             <div class="ui hidden divider"></div>
         {{end}}
 
-        <form class="ui huge form" action="/settings" method="POST" novalidate autocomplete="off">
-            <div class="field">
-                <div class="ui small header">Email Address</div>
-                <input name="email" type="email" placeholder="Email Address" value="{{$.Info.Email}}">
+        <form class="ui large form" action="/settings" method="POST" novalidate autocomplete="off">
+            <div class="equal width fields">
+                <div class="field">
+                    <div class="ui small header">Admin Email</div>
+                    <input name="email" type="email" placeholder="Email Address" value="{{$.Info.Email}}">
+                </div>
+                <div class="field">
+                    <div class="ui small header">Timezone</div>
+                    <select name="location" class="ui fluid dropdown">
+                        <option {{if eq $.Info.Location "UTC"}}selected{{end}} value="UTC">UTC</option>
+                        <option {{if eq $.Info.Location "US/Aleutian"}}selected{{end}} value="US/Aleutian">US/Aleutian</option>
+                        <option {{if eq $.Info.Location "US/Alaska"}}selected{{end}} value="US/Alaska">US/Alaska</option>
+                        <option {{if eq $.Info.Location "US/Central"}}selected{{end}} value="US/Central">US/Central</option>
+                        <option {{if eq $.Info.Location "US/Mountain"}}selected{{end}} value="US/Mountain">US/Mountain</option>
+                        <option {{if eq $.Info.Location "US/Michigan"}}selected{{end}} value="US/Michigan">US/Michigan</option>
+                        <option {{if eq $.Info.Location "US/Pacific"}}selected{{end}} value="US/Pacific">US/Pacific</option>
+                        <option {{if eq $.Info.Location "US/Eastern"}}selected{{end}} value="US/Eastern">US/Eastern</option>
+                        <option {{if eq $.Info.Location "US/Arizona"}}selected{{end}} value="US/Arizona">US/Arizona</option>
+                        <option {{if eq $.Info.Location "US/Hawaii"}}selected{{end}} value="US/Hawaii">US/Hawaii</option>
+                        <option {{if eq $.Info.Location "US/Samoa"}}selected{{end}} value="US/Samoa">US/Samoa</option>
+                        <option {{if eq $.Info.Location "Africa/Accra"}}selected{{end}} value="Africa/Accra">Africa/Accra</option>
+                        <option {{if eq $.Info.Location "Africa/Algiers"}}selected{{end}} value="Africa/Algiers">Africa/Algiers</option>
+                        <option {{if eq $.Info.Location "Africa/Bissau"}}selected{{end}} value="Africa/Bissau">Africa/Bissau</option>
+                        <option {{if eq $.Info.Location "Africa/Casablanca"}}selected{{end}} value="Africa/Casablanca">Africa/Casablanca</option>
+                        <option {{if eq $.Info.Location "Africa/Ceuta"}}selected{{end}} value="Africa/Ceuta">Africa/Ceuta</option>
+                        <option {{if eq $.Info.Location "Africa/El_Aaiun"}}selected{{end}} value="Africa/El_Aaiun">Africa/El_Aaiun</option>
+                        <option {{if eq $.Info.Location "Africa/Monrovia"}}selected{{end}} value="Africa/Monrovia">Africa/Monrovia</option>
+                        <option {{if eq $.Info.Location "Africa/Ndjamena"}}selected{{end}} value="Africa/Ndjamena">Africa/Ndjamena</option>
+                        <option {{if eq $.Info.Location "Africa/Tunis"}}selected{{end}} value="Africa/Tunis">Africa/Tunis</option>
+                        <option {{if eq $.Info.Location "Africa/Windhoek"}}selected{{end}} value="Africa/Windhoek">Africa/Windhoek</option>
+                        <option {{if eq $.Info.Location "Africa/Abidjan"}}selected{{end}} value="Africa/Abidjan">Africa/Abidjan</option>
+                        <option {{if eq $.Info.Location "Africa/Bamako"}}selected{{end}} value="Africa/Bamako">Africa/Bamako</option>
+                        <option {{if eq $.Info.Location "Africa/Banjul"}}selected{{end}} value="Africa/Banjul">Africa/Banjul</option>
+                        <option {{if eq $.Info.Location "Africa/Conakry"}}selected{{end}} value="Africa/Conakry">Africa/Conakry</option>
+                        <option {{if eq $.Info.Location "Africa/Dakar"}}selected{{end}} value="Africa/Dakar">Africa/Dakar</option>
+                        <option {{if eq $.Info.Location "Africa/Freetown"}}selected{{end}} value="Africa/Freetown">Africa/Freetown</option>
+                        <option {{if eq $.Info.Location "Africa/Lome"}}selected{{end}} value="Africa/Lome">Africa/Lome</option>
+                        <option {{if eq $.Info.Location "Africa/Nouakchott"}}selected{{end}} value="Africa/Nouakchott">Africa/Nouakchott</option>
+                        <option {{if eq $.Info.Location "Africa/Ouagadougou"}}selected{{end}} value="Africa/Ouagadougou">Africa/Ouagadougou</option>
+                        <option {{if eq $.Info.Location "Africa/Sao_Tome"}}selected{{end}} value="Africa/Sao_Tome">Africa/Sao_Tome</option>
+                        <option {{if eq $.Info.Location "Africa/Timbuktu"}}selected{{end}} value="Africa/Timbuktu">Africa/Timbuktu</option>
+                        <option {{if eq $.Info.Location "Africa/Addis_Ababa"}}selected{{end}} value="Africa/Addis_Ababa">Africa/Addis_Ababa</option>
+                        <option {{if eq $.Info.Location "Africa/Asmara"}}selected{{end}} value="Africa/Asmara">Africa/Asmara</option>
+                        <option {{if eq $.Info.Location "Africa/Asmera"}}selected{{end}} value="Africa/Asmera">Africa/Asmera</option>
+                        <option {{if eq $.Info.Location "Africa/Dar_es_Salaam"}}selected{{end}} value="Africa/Dar_es_Salaam">Africa/Dar_es_Salaam</option>
+                        <option {{if eq $.Info.Location "Africa/Djibouti"}}selected{{end}} value="Africa/Djibouti">Africa/Djibouti</option>
+                        <option {{if eq $.Info.Location "Africa/Kampala"}}selected{{end}} value="Africa/Kampala">Africa/Kampala</option>
+                        <option {{if eq $.Info.Location "Africa/Mogadishu"}}selected{{end}} value="Africa/Mogadishu">Africa/Mogadishu</option>
+                        <option {{if eq $.Info.Location "Africa/Nairobi"}}selected{{end}} value="Africa/Nairobi">Africa/Nairobi</option>
+                        <option {{if eq $.Info.Location "Africa/Bangui"}}selected{{end}} value="Africa/Bangui">Africa/Bangui</option>
+                        <option {{if eq $.Info.Location "Africa/Brazzaville"}}selected{{end}} value="Africa/Brazzaville">Africa/Brazzaville</option>
+                        <option {{if eq $.Info.Location "Africa/Douala"}}selected{{end}} value="Africa/Douala">Africa/Douala</option>
+                        <option {{if eq $.Info.Location "Africa/Kinshasa"}}selected{{end}} value="Africa/Kinshasa">Africa/Kinshasa</option>
+                        <option {{if eq $.Info.Location "Africa/Lagos"}}selected{{end}} value="Africa/Lagos">Africa/Lagos</option>
+                        <option {{if eq $.Info.Location "Africa/Libreville"}}selected{{end}} value="Africa/Libreville">Africa/Libreville</option>
+                        <option {{if eq $.Info.Location "Africa/Luanda"}}selected{{end}} value="Africa/Luanda">Africa/Luanda</option>
+                        <option {{if eq $.Info.Location "Africa/Malabo"}}selected{{end}} value="Africa/Malabo">Africa/Malabo</option>
+                        <option {{if eq $.Info.Location "Africa/Niamey"}}selected{{end}} value="Africa/Niamey">Africa/Niamey</option>
+                        <option {{if eq $.Info.Location "Africa/Porto-Novo"}}selected{{end}} value="Africa/Porto-Novo">Africa/Porto-Novo</option>
+                        <option {{if eq $.Info.Location "Africa/Blantyre"}}selected{{end}} value="Africa/Blantyre">Africa/Blantyre</option>
+                        <option {{if eq $.Info.Location "Africa/Bujumbura"}}selected{{end}} value="Africa/Bujumbura">Africa/Bujumbura</option>
+                        <option {{if eq $.Info.Location "Africa/Gaborone"}}selected{{end}} value="Africa/Gaborone">Africa/Gaborone</option>
+                        <option {{if eq $.Info.Location "Africa/Harare"}}selected{{end}} value="Africa/Harare">Africa/Harare</option>
+                        <option {{if eq $.Info.Location "Africa/Kigali"}}selected{{end}} value="Africa/Kigali">Africa/Kigali</option>
+                        <option {{if eq $.Info.Location "Africa/Lubumbashi"}}selected{{end}} value="Africa/Lubumbashi">Africa/Lubumbashi</option>
+                        <option {{if eq $.Info.Location "Africa/Lusaka"}}selected{{end}} value="Africa/Lusaka">Africa/Lusaka</option>
+                        <option {{if eq $.Info.Location "Africa/Maputo"}}selected{{end}} value="Africa/Maputo">Africa/Maputo</option>
+                        <option {{if eq $.Info.Location "Africa/Cairo"}}selected{{end}} value="Africa/Cairo">Africa/Cairo</option>
+                        <option {{if eq $.Info.Location "Africa/Johannesburg"}}selected{{end}} value="Africa/Johannesburg">Africa/Johannesburg</option>
+                        <option {{if eq $.Info.Location "Africa/Maseru"}}selected{{end}} value="Africa/Maseru">Africa/Maseru</option>
+                        <option {{if eq $.Info.Location "Africa/Mbabane"}}selected{{end}} value="Africa/Mbabane">Africa/Mbabane</option>
+                        <option {{if eq $.Info.Location "Africa/Juba"}}selected{{end}} value="Africa/Juba">Africa/Juba</option>
+                        <option {{if eq $.Info.Location "Africa/Khartoum"}}selected{{end}} value="Africa/Khartoum">Africa/Khartoum</option>
+                        <option {{if eq $.Info.Location "Africa/Tripoli"}}selected{{end}} value="Africa/Tripoli">Africa/Tripoli</option>
+                        <option {{if eq $.Info.Location "America/Resolute"}}selected{{end}} value="America/Resolute">America/Resolute</option>
+                        <option {{if eq $.Info.Location "America/Araguaina"}}selected{{end}} value="America/Araguaina">America/Araguaina</option>
+                        <option {{if eq $.Info.Location "America/Argentina"}}selected{{end}} value="America/Argentina">America/Argentina</option>
+                        <option {{if eq $.Info.Location "America/Argentina/La_Rioja"}}selected{{end}} value="America/Argentina/La_Rioja">America/Argentina/La_Rioja</option>
+                        <option {{if eq $.Info.Location "America/Argentina/Rio_Gallegos"}}selected{{end}} value="America/Argentina/Rio_Gallegos">America/Argentina/Rio_Gallegos</option>
+                        <option {{if eq $.Info.Location "America/Argentina/Salta"}}selected{{end}} value="America/Argentina/Salta">America/Argentina/Salta</option>
+                        <option {{if eq $.Info.Location "America/Argentina/San_Juan"}}selected{{end}} value="America/Argentina/San_Juan">America/Argentina/San_Juan</option>
+                        <option {{if eq $.Info.Location "America/Argentina/San_Luis"}}selected{{end}} value="America/Argentina/San_Luis">America/Argentina/San_Luis</option>
+                        <option {{if eq $.Info.Location "America/Argentina/Tucuman"}}selected{{end}} value="America/Argentina/Tucuman">America/Argentina/Tucuman</option>
+                        <option {{if eq $.Info.Location "America/Argentina/Ushuaia"}}selected{{end}} value="America/Argentina/Ushuaia">America/Argentina/Ushuaia</option>
+                        <option {{if eq $.Info.Location "America/Argentina/Buenos_Aires"}}selected{{end}} value="America/Argentina/Buenos_Aires">America/Argentina/Buenos_Aires</option>
+                        <option {{if eq $.Info.Location "America/Argentina/Catamarca"}}selected{{end}} value="America/Argentina/Catamarca">America/Argentina/Catamarca</option>
+                        <option {{if eq $.Info.Location "America/Argentina/ComodRivadavia"}}selected{{end}} value="America/Argentina/ComodRivadavia">America/Argentina/ComodRivadavia</option>
+                        <option {{if eq $.Info.Location "America/Argentina/Cordoba"}}selected{{end}} value="America/Argentina/Cordoba">America/Argentina/Cordoba</option>
+                        <option {{if eq $.Info.Location "America/Argentina/Jujuy"}}selected{{end}} value="America/Argentina/Jujuy">America/Argentina/Jujuy</option>
+                        <option {{if eq $.Info.Location "America/Argentina/Mendoza"}}selected{{end}} value="America/Argentina/Mendoza">America/Argentina/Mendoza</option>
+                        <option {{if eq $.Info.Location "America/Grenada"}}selected{{end}} value="America/Grenada">America/Grenada</option>
+                        <option {{if eq $.Info.Location "America/Asuncion"}}selected{{end}} value="America/Asuncion">America/Asuncion</option>
+                        <option {{if eq $.Info.Location "America/Santarem"}}selected{{end}} value="America/Santarem">America/Santarem</option>
+                        <option {{if eq $.Info.Location "America/Bahia"}}selected{{end}} value="America/Bahia">America/Bahia</option>
+                        <option {{if eq $.Info.Location "America/Rainy_River"}}selected{{end}} value="America/Rainy_River">America/Rainy_River</option>
+                        <option {{if eq $.Info.Location "America/Bahia_Banderas"}}selected{{end}} value="America/Bahia_Banderas">America/Bahia_Banderas</option>
+                        <option {{if eq $.Info.Location "America/Guadeloupe"}}selected{{end}} value="America/Guadeloupe">America/Guadeloupe</option>
+                        <option {{if eq $.Info.Location "America/Barbados"}}selected{{end}} value="America/Barbados">America/Barbados</option>
+                        <option {{if eq $.Info.Location "America/Marigot"}}selected{{end}} value="America/Marigot">America/Marigot</option>
+                        <option {{if eq $.Info.Location "America/Belem"}}selected{{end}} value="America/Belem">America/Belem</option>
+                        <option {{if eq $.Info.Location "America/Montserrat"}}selected{{end}} value="America/Montserrat">America/Montserrat</option>
+                        <option {{if eq $.Info.Location "America/Belize"}}selected{{end}} value="America/Belize">America/Belize</option>
+                        <option {{if eq $.Info.Location "America/Port_of_Spain"}}selected{{end}} value="America/Port_of_Spain">America/Port_of_Spain</option>
+                        <option {{if eq $.Info.Location "America/Blanc-Sablon"}}selected{{end}} value="America/Blanc-Sablon">America/Blanc-Sablon</option>
+                        <option {{if eq $.Info.Location "America/St_Barthelemy"}}selected{{end}} value="America/St_Barthelemy">America/St_Barthelemy</option>
+                        <option {{if eq $.Info.Location "America/Boa_Vista"}}selected{{end}} value="America/Boa_Vista">America/Boa_Vista</option>
+                        <option {{if eq $.Info.Location "America/St_Thomas"}}selected{{end}} value="America/St_Thomas">America/St_Thomas</option>
+                        <option {{if eq $.Info.Location "America/Bogota"}}selected{{end}} value="America/Bogota">America/Bogota</option>
+                        <option {{if eq $.Info.Location "America/St_Vincent"}}selected{{end}} value="America/St_Vincent">America/St_Vincent</option>
+                        <option {{if eq $.Info.Location "America/Boise"}}selected{{end}} value="America/Boise">America/Boise</option>
+                        <option {{if eq $.Info.Location "America/Rankin_Inlet"}}selected{{end}} value="America/Rankin_Inlet">America/Rankin_Inlet</option>
+                        <option {{if eq $.Info.Location "America/Cambridge_Bay"}}selected{{end}} value="America/Cambridge_Bay">America/Cambridge_Bay</option>
+                        <option {{if eq $.Info.Location "America/Tortola"}}selected{{end}} value="America/Tortola">America/Tortola</option>
+                        <option {{if eq $.Info.Location "America/Campo_Grande"}}selected{{end}} value="America/Campo_Grande">America/Campo_Grande</option>
+                        <option {{if eq $.Info.Location "America/Virgin"}}selected{{end}} value="America/Virgin">America/Virgin</option>
+                        <option {{if eq $.Info.Location "America/Cancun"}}selected{{end}} value="America/Cancun">America/Cancun</option>
+                        <option {{if eq $.Info.Location "America/Buenos_Aires"}}selected{{end}} value="America/Buenos_Aires">America/Buenos_Aires</option>
+                        <option {{if eq $.Info.Location "America/Caracas"}}selected{{end}} value="America/Caracas">America/Caracas</option>
+                        <option {{if eq $.Info.Location "America/Anguilla"}}selected{{end}} value="America/Anguilla">America/Anguilla</option>
+                        <option {{if eq $.Info.Location "America/Cayenne"}}selected{{end}} value="America/Cayenne">America/Cayenne</option>
+                        <option {{if eq $.Info.Location "America/Dominica"}}selected{{end}} value="America/Dominica">America/Dominica</option>
+                        <option {{if eq $.Info.Location "America/Chihuahua"}}selected{{end}} value="America/Chihuahua">America/Chihuahua</option>
+                        <option {{if eq $.Info.Location "America/St_Kitts"}}selected{{end}} value="America/St_Kitts">America/St_Kitts</option>
+                        <option {{if eq $.Info.Location "America/Costa_Rica"}}selected{{end}} value="America/Costa_Rica">America/Costa_Rica</option>
+                        <option {{if eq $.Info.Location "America/St_Lucia"}}selected{{end}} value="America/St_Lucia">America/St_Lucia</option>
+                        <option {{if eq $.Info.Location "America/Creston"}}selected{{end}} value="America/Creston">America/Creston</option>
+                        <option {{if eq $.Info.Location "America/Catamarca"}}selected{{end}} value="America/Catamarca">America/Catamarca</option>
+                        <option {{if eq $.Info.Location "America/Cuiaba"}}selected{{end}} value="America/Cuiaba">America/Cuiaba</option>
+                        <option {{if eq $.Info.Location "America/Jujuy"}}selected{{end}} value="America/Jujuy">America/Jujuy</option>
+                        <option {{if eq $.Info.Location "America/Danmarkshavn"}}selected{{end}} value="America/Danmarkshavn">America/Danmarkshavn</option>
+                        <option {{if eq $.Info.Location "America/Cordoba"}}selected{{end}} value="America/Cordoba">America/Cordoba</option>
+                        <option {{if eq $.Info.Location "America/Dawson"}}selected{{end}} value="America/Dawson">America/Dawson</option>
+                        <option {{if eq $.Info.Location "America/Rosario"}}selected{{end}} value="America/Rosario">America/Rosario</option>
+                        <option {{if eq $.Info.Location "America/Dawson_Creek"}}selected{{end}} value="America/Dawson_Creek">America/Dawson_Creek</option>
+                        <option {{if eq $.Info.Location "America/Mendoza"}}selected{{end}} value="America/Mendoza">America/Mendoza</option>
+                        <option {{if eq $.Info.Location "America/Eirunepe"}}selected{{end}} value="America/Eirunepe">America/Eirunepe</option>
+                        <option {{if eq $.Info.Location "America/Kralendijk"}}selected{{end}} value="America/Kralendijk">America/Kralendijk</option>
+                        <option {{if eq $.Info.Location "America/El_Salvador"}}selected{{end}} value="America/El_Salvador">America/El_Salvador</option>
+                        <option {{if eq $.Info.Location "America/Lower_Princes"}}selected{{end}} value="America/Lower_Princes">America/Lower_Princes</option>
+                        <option {{if eq $.Info.Location "America/Fort_Nelson"}}selected{{end}} value="America/Fort_Nelson">America/Fort_Nelson</option>
+                        <option {{if eq $.Info.Location "America/Chicago"}}selected{{end}} value="America/Chicago">America/Chicago</option>
+                        <option {{if eq $.Info.Location "America/Fortaleza"}}selected{{end}} value="America/Fortaleza">America/Fortaleza</option>
+                        <option {{if eq $.Info.Location "America/Aruba"}}selected{{end}} value="America/Aruba">America/Aruba</option>
+                        <option {{if eq $.Info.Location "America/Glace_Bay"}}selected{{end}} value="America/Glace_Bay">America/Glace_Bay</option>
+                        <option {{if eq $.Info.Location "America/Curacao"}}selected{{end}} value="America/Curacao">America/Curacao</option>
+                        <option {{if eq $.Info.Location "America/Godthab"}}selected{{end}} value="America/Godthab">America/Godthab</option>
+                        <option {{if eq $.Info.Location "America/Atikokan"}}selected{{end}} value="America/Atikokan">America/Atikokan</option>
+                        <option {{if eq $.Info.Location "America/Goose_Bay"}}selected{{end}} value="America/Goose_Bay">America/Goose_Bay</option>
+                        <option {{if eq $.Info.Location "America/Coral_Harbour"}}selected{{end}} value="America/Coral_Harbour">America/Coral_Harbour</option>
+                        <option {{if eq $.Info.Location "America/Grand_Turk"}}selected{{end}} value="America/Grand_Turk">America/Grand_Turk</option>
+                        <option {{if eq $.Info.Location "America/Cayman"}}selected{{end}} value="America/Cayman">America/Cayman</option>
+                        <option {{if eq $.Info.Location "America/Guatemala"}}selected{{end}} value="America/Guatemala">America/Guatemala</option>
+                        <option {{if eq $.Info.Location "America/Panama"}}selected{{end}} value="America/Panama">America/Panama</option>
+                        <option {{if eq $.Info.Location "America/Guayaquil"}}selected{{end}} value="America/Guayaquil">America/Guayaquil</option>
+                        <option {{if eq $.Info.Location "America/Detroit"}}selected{{end}} value="America/Detroit">America/Detroit</option>
+                        <option {{if eq $.Info.Location "America/Guyana"}}selected{{end}} value="America/Guyana">America/Guyana</option>
+                        <option {{if eq $.Info.Location "America/Denver"}}selected{{end}} value="America/Denver">America/Denver</option>
+                        <option {{if eq $.Info.Location "America/Hermosillo"}}selected{{end}} value="America/Hermosillo">America/Hermosillo</option>
+                        <option {{if eq $.Info.Location "America/Indiana"}}selected{{end}} value="America/Indiana">America/Indiana</option>
+                        <option {{if eq $.Info.Location "America/Indiana/Marengo"}}selected{{end}} value="America/Indiana/Marengo">America/Indiana/Marengo</option>
+                        <option {{if eq $.Info.Location "America/Indiana/Petersburg"}}selected{{end}} value="America/Indiana/Petersburg">America/Indiana/Petersburg</option>
+                        <option {{if eq $.Info.Location "America/Indiana/Tell_City"}}selected{{end}} value="America/Indiana/Tell_City">America/Indiana/Tell_City</option>
+                        <option {{if eq $.Info.Location "America/Indiana/Vevay"}}selected{{end}} value="America/Indiana/Vevay">America/Indiana/Vevay</option>
+                        <option {{if eq $.Info.Location "America/Indiana/Vincennes"}}selected{{end}} value="America/Indiana/Vincennes">America/Indiana/Vincennes</option>
+                        <option {{if eq $.Info.Location "America/Indiana/Winamac"}}selected{{end}} value="America/Indiana/Winamac">America/Indiana/Winamac</option>
+                        <option {{if eq $.Info.Location "America/Indiana/Indianapolis"}}selected{{end}} value="America/Indiana/Indianapolis">America/Indiana/Indianapolis</option>
+                        <option {{if eq $.Info.Location "America/Indiana/Knox"}}selected{{end}} value="America/Indiana/Knox">America/Indiana/Knox</option>
+                        <option {{if eq $.Info.Location "America/Edmonton"}}selected{{end}} value="America/Edmonton">America/Edmonton</option>
+                        <option {{if eq $.Info.Location "America/Inuvik"}}selected{{end}} value="America/Inuvik">America/Inuvik</option>
+                        <option {{if eq $.Info.Location "America/Havana"}}selected{{end}} value="America/Havana">America/Havana</option>
+                        <option {{if eq $.Info.Location "America/Iqaluit"}}selected{{end}} value="America/Iqaluit">America/Iqaluit</option>
+                        <option {{if eq $.Info.Location "America/Tijuana"}}selected{{end}} value="America/Tijuana">America/Tijuana</option>
+                        <option {{if eq $.Info.Location "America/Juneau"}}selected{{end}} value="America/Juneau">America/Juneau</option>
+                        <option {{if eq $.Info.Location "America/Kentucky"}}selected{{end}} value="America/Kentucky">America/Kentucky</option>
+                        <option {{if eq $.Info.Location "America/Kentucky/Monticello"}}selected{{end}} value="America/Kentucky/Monticello">America/Kentucky/Monticello</option>
+                        <option {{if eq $.Info.Location "America/Kentucky/Louisville"}}selected{{end}} value="America/Kentucky/Louisville">America/Kentucky/Louisville</option>
+                        <option {{if eq $.Info.Location "America/Halifax"}}selected{{end}} value="America/Halifax">America/Halifax</option>
+                        <option {{if eq $.Info.Location "America/La_Paz"}}selected{{end}} value="America/La_Paz">America/La_Paz</option>
+                        <option {{if eq $.Info.Location "America/Winnipeg"}}selected{{end}} value="America/Winnipeg">America/Winnipeg</option>
+                        <option {{if eq $.Info.Location "America/Lima"}}selected{{end}} value="America/Lima">America/Lima</option>
+                        <option {{if eq $.Info.Location "America/Ensenada"}}selected{{end}} value="America/Ensenada">America/Ensenada</option>
+                        <option {{if eq $.Info.Location "America/Maceio"}}selected{{end}} value="America/Maceio">America/Maceio</option>
+                        <option {{if eq $.Info.Location "America/Santa_Isabel"}}selected{{end}} value="America/Santa_Isabel">America/Santa_Isabel</option>
+                        <option {{if eq $.Info.Location "America/Managua"}}selected{{end}} value="America/Managua">America/Managua</option>
+                        <option {{if eq $.Info.Location "America/Fort_Wayne"}}selected{{end}} value="America/Fort_Wayne">America/Fort_Wayne</option>
+                        <option {{if eq $.Info.Location "America/Martinique"}}selected{{end}} value="America/Martinique">America/Martinique</option>
+                        <option {{if eq $.Info.Location "America/Indianapolis"}}selected{{end}} value="America/Indianapolis">America/Indianapolis</option>
+                        <option {{if eq $.Info.Location "America/Matamoros"}}selected{{end}} value="America/Matamoros">America/Matamoros</option>
+                        <option {{if eq $.Info.Location "America/Knox_IN"}}selected{{end}} value="America/Knox_IN">America/Knox_IN</option>
+                        <option {{if eq $.Info.Location "America/Menominee"}}selected{{end}} value="America/Menominee">America/Menominee</option>
+                        <option {{if eq $.Info.Location "America/Jamaica"}}selected{{end}} value="America/Jamaica">America/Jamaica</option>
+                        <option {{if eq $.Info.Location "America/Merida"}}selected{{end}} value="America/Merida">America/Merida</option>
+                        <option {{if eq $.Info.Location "America/Louisville"}}selected{{end}} value="America/Louisville">America/Louisville</option>
+                        <option {{if eq $.Info.Location "America/Metlakatla"}}selected{{end}} value="America/Metlakatla">America/Metlakatla</option>
+                        <option {{if eq $.Info.Location "America/Los_Angeles"}}selected{{end}} value="America/Los_Angeles">America/Los_Angeles</option>
+                        <option {{if eq $.Info.Location "America/Miquelon"}}selected{{end}} value="America/Miquelon">America/Miquelon</option>
+                        <option {{if eq $.Info.Location "America/Manaus"}}selected{{end}} value="America/Manaus">America/Manaus</option>
+                        <option {{if eq $.Info.Location "America/Moncton"}}selected{{end}} value="America/Moncton">America/Moncton</option>
+                        <option {{if eq $.Info.Location "America/Mazatlan"}}selected{{end}} value="America/Mazatlan">America/Mazatlan</option>
+                        <option {{if eq $.Info.Location "America/Monterrey"}}selected{{end}} value="America/Monterrey">America/Monterrey</option>
+                        <option {{if eq $.Info.Location "America/Mexico_City"}}selected{{end}} value="America/Mexico_City">America/Mexico_City</option>
+                        <option {{if eq $.Info.Location "America/Montevideo"}}selected{{end}} value="America/Montevideo">America/Montevideo</option>
+                        <option {{if eq $.Info.Location "America/New_York"}}selected{{end}} value="America/New_York">America/New_York</option>
+                        <option {{if eq $.Info.Location "America/Nassau"}}selected{{end}} value="America/Nassau">America/Nassau</option>
+                        <option {{if eq $.Info.Location "America/Noronha"}}selected{{end}} value="America/Noronha">America/Noronha</option>
+                        <option {{if eq $.Info.Location "America/Nipigon"}}selected{{end}} value="America/Nipigon">America/Nipigon</option>
+                        <option {{if eq $.Info.Location "America/Nome"}}selected{{end}} value="America/Nome">America/Nome</option>
+                        <option {{if eq $.Info.Location "America/North_Dakota"}}selected{{end}} value="America/North_Dakota">America/North_Dakota</option>
+                        <option {{if eq $.Info.Location "America/North_Dakota/Beulah"}}selected{{end}} value="America/North_Dakota/Beulah">America/North_Dakota/Beulah</option>
+                        <option {{if eq $.Info.Location "America/North_Dakota/Center"}}selected{{end}} value="America/North_Dakota/Center">America/North_Dakota/Center</option>
+                        <option {{if eq $.Info.Location "America/North_Dakota/New_Salem"}}selected{{end}} value="America/North_Dakota/New_Salem">America/North_Dakota/New_Salem</option>
+                        <option {{if eq $.Info.Location "America/Montreal"}}selected{{end}} value="America/Montreal">America/Montreal</option>
+                        <option {{if eq $.Info.Location "America/Ojinaga"}}selected{{end}} value="America/Ojinaga">America/Ojinaga</option>
+                        <option {{if eq $.Info.Location "America/Toronto"}}selected{{end}} value="America/Toronto">America/Toronto</option>
+                        <option {{if eq $.Info.Location "America/Pangnirtung"}}selected{{end}} value="America/Pangnirtung">America/Pangnirtung</option>
+                        <option {{if eq $.Info.Location "America/Phoenix"}}selected{{end}} value="America/Phoenix">America/Phoenix</option>
+                        <option {{if eq $.Info.Location "America/Paramaribo"}}selected{{end}} value="America/Paramaribo">America/Paramaribo</option>
+                        <option {{if eq $.Info.Location "America/Recife"}}selected{{end}} value="America/Recife">America/Recife</option>
+                        <option {{if eq $.Info.Location "America/Port-au-Prince"}}selected{{end}} value="America/Port-au-Prince">America/Port-au-Prince</option>
+                        <option {{if eq $.Info.Location "America/Regina"}}selected{{end}} value="America/Regina">America/Regina</option>
+                        <option {{if eq $.Info.Location "America/Porto_Velho"}}selected{{end}} value="America/Porto_Velho">America/Porto_Velho</option>
+                        <option {{if eq $.Info.Location "America/Santiago"}}selected{{end}} value="America/Santiago">America/Santiago</option>
+                        <option {{if eq $.Info.Location "America/Puerto_Rico"}}selected{{end}} value="America/Puerto_Rico">America/Puerto_Rico</option>
+                        <option {{if eq $.Info.Location "America/Atka"}}selected{{end}} value="America/Atka">America/Atka</option>
+                        <option {{if eq $.Info.Location "America/Santo_Domingo"}}selected{{end}} value="America/Santo_Domingo">America/Santo_Domingo</option>
+                        <option {{if eq $.Info.Location "America/Porto_Acre"}}selected{{end}} value="America/Porto_Acre">America/Porto_Acre</option>
+                        <option {{if eq $.Info.Location "America/Scoresbysund"}}selected{{end}} value="America/Scoresbysund">America/Scoresbysund</option>
+                        <option {{if eq $.Info.Location "America/Rio_Branco"}}selected{{end}} value="America/Rio_Branco">America/Rio_Branco</option>
+                        <option {{if eq $.Info.Location "America/Sitka"}}selected{{end}} value="America/Sitka">America/Sitka</option>
+                        <option {{if eq $.Info.Location "America/Anchorage"}}selected{{end}} value="America/Anchorage">America/Anchorage</option>
+                        <option {{if eq $.Info.Location "America/Swift_Current"}}selected{{end}} value="America/Swift_Current">America/Swift_Current</option>
+                        <option {{if eq $.Info.Location "America/Sao_Paulo"}}selected{{end}} value="America/Sao_Paulo">America/Sao_Paulo</option>
+                        <option {{if eq $.Info.Location "America/Tegucigalpa"}}selected{{end}} value="America/Tegucigalpa">America/Tegucigalpa</option>
+                        <option {{if eq $.Info.Location "America/St_Johns"}}selected{{end}} value="America/St_Johns">America/St_Johns</option>
+                        <option {{if eq $.Info.Location "America/Thule"}}selected{{end}} value="America/Thule">America/Thule</option>
+                        <option {{if eq $.Info.Location "America/Vancouver"}}selected{{end}} value="America/Vancouver">America/Vancouver</option>
+                        <option {{if eq $.Info.Location "America/Thunder_Bay"}}selected{{end}} value="America/Thunder_Bay">America/Thunder_Bay</option>
+                        <option {{if eq $.Info.Location "America/Whitehorse"}}selected{{end}} value="America/Whitehorse">America/Whitehorse</option>
+                        <option {{if eq $.Info.Location "America/Yakutat"}}selected{{end}} value="America/Yakutat">America/Yakutat</option>
+                        <option {{if eq $.Info.Location "America/Yellowknife"}}selected{{end}} value="America/Yellowknife">America/Yellowknife</option>
+                        <option {{if eq $.Info.Location "America/Shiprock"}}selected{{end}} value="America/Shiprock">America/Shiprock</option>
+                        <option {{if eq $.Info.Location "America/Adak"}}selected{{end}} value="America/Adak">America/Adak</option>
+                        <option {{if eq $.Info.Location "America/Antigua"}}selected{{end}} value="America/Antigua">America/Antigua</option>
+                        <option {{if eq $.Info.Location "Antarctica/Casey"}}selected{{end}} value="Antarctica/Casey">Antarctica/Casey</option>
+                        <option {{if eq $.Info.Location "Antarctica/Davis"}}selected{{end}} value="Antarctica/Davis">Antarctica/Davis</option>
+                        <option {{if eq $.Info.Location "Antarctica/DumontDUrville"}}selected{{end}} value="Antarctica/DumontDUrville">Antarctica/DumontDUrville</option>
+                        <option {{if eq $.Info.Location "Antarctica/Macquarie"}}selected{{end}} value="Antarctica/Macquarie">Antarctica/Macquarie</option>
+                        <option {{if eq $.Info.Location "Antarctica/Mawson"}}selected{{end}} value="Antarctica/Mawson">Antarctica/Mawson</option>
+                        <option {{if eq $.Info.Location "Antarctica/Palmer"}}selected{{end}} value="Antarctica/Palmer">Antarctica/Palmer</option>
+                        <option {{if eq $.Info.Location "Antarctica/Rothera"}}selected{{end}} value="Antarctica/Rothera">Antarctica/Rothera</option>
+                        <option {{if eq $.Info.Location "Antarctica/Syowa"}}selected{{end}} value="Antarctica/Syowa">Antarctica/Syowa</option>
+                        <option {{if eq $.Info.Location "Antarctica/Troll"}}selected{{end}} value="Antarctica/Troll">Antarctica/Troll</option>
+                        <option {{if eq $.Info.Location "Antarctica/Vostok"}}selected{{end}} value="Antarctica/Vostok">Antarctica/Vostok</option>
+                        <option {{if eq $.Info.Location "Antarctica/McMurdo"}}selected{{end}} value="Antarctica/McMurdo">Antarctica/McMurdo</option>
+                        <option {{if eq $.Info.Location "Antarctica/South_Pole"}}selected{{end}} value="Antarctica/South_Pole">Antarctica/South_Pole</option>
+                        <option {{if eq $.Info.Location "Arctic/Longyearbyen"}}selected{{end}} value="Arctic/Longyearbyen">Arctic/Longyearbyen</option>
+                        <option {{if eq $.Info.Location "Asia/Almaty"}}selected{{end}} value="Asia/Almaty">Asia/Almaty</option>
+                        <option {{if eq $.Info.Location "Asia/Kashgar"}}selected{{end}} value="Asia/Kashgar">Asia/Kashgar</option>
+                        <option {{if eq $.Info.Location "Asia/Amman"}}selected{{end}} value="Asia/Amman">Asia/Amman</option>
+                        <option {{if eq $.Info.Location "Asia/Urumqi"}}selected{{end}} value="Asia/Urumqi">Asia/Urumqi</option>
+                        <option {{if eq $.Info.Location "Asia/Anadyr"}}selected{{end}} value="Asia/Anadyr">Asia/Anadyr</option>
+                        <option {{if eq $.Info.Location "Asia/Aqtau"}}selected{{end}} value="Asia/Aqtau">Asia/Aqtau</option>
+                        <option {{if eq $.Info.Location "Asia/Aqtobe"}}selected{{end}} value="Asia/Aqtobe">Asia/Aqtobe</option>
+                        <option {{if eq $.Info.Location "Asia/Baghdad"}}selected{{end}} value="Asia/Baghdad">Asia/Baghdad</option>
+                        <option {{if eq $.Info.Location "Asia/Baku"}}selected{{end}} value="Asia/Baku">Asia/Baku</option>
+                        <option {{if eq $.Info.Location "Asia/Barnaul"}}selected{{end}} value="Asia/Barnaul">Asia/Barnaul</option>
+                        <option {{if eq $.Info.Location "Asia/Beirut"}}selected{{end}} value="Asia/Beirut">Asia/Beirut</option>
+                        <option {{if eq $.Info.Location "Asia/Bishkek"}}selected{{end}} value="Asia/Bishkek">Asia/Bishkek</option>
+                        <option {{if eq $.Info.Location "Asia/Brunei"}}selected{{end}} value="Asia/Brunei">Asia/Brunei</option>
+                        <option {{if eq $.Info.Location "Asia/Chita"}}selected{{end}} value="Asia/Chita">Asia/Chita</option>
+                        <option {{if eq $.Info.Location "Asia/Choibalsan"}}selected{{end}} value="Asia/Choibalsan">Asia/Choibalsan</option>
+                        <option {{if eq $.Info.Location "Asia/Colombo"}}selected{{end}} value="Asia/Colombo">Asia/Colombo</option>
+                        <option {{if eq $.Info.Location "Asia/Damascus"}}selected{{end}} value="Asia/Damascus">Asia/Damascus</option>
+                        <option {{if eq $.Info.Location "Asia/Dili"}}selected{{end}} value="Asia/Dili">Asia/Dili</option>
+                        <option {{if eq $.Info.Location "Asia/Dushanbe"}}selected{{end}} value="Asia/Dushanbe">Asia/Dushanbe</option>
+                        <option {{if eq $.Info.Location "Asia/Gaza"}}selected{{end}} value="Asia/Gaza">Asia/Gaza</option>
+                        <option {{if eq $.Info.Location "Asia/Hebron"}}selected{{end}} value="Asia/Hebron">Asia/Hebron</option>
+                        <option {{if eq $.Info.Location "Asia/Hovd"}}selected{{end}} value="Asia/Hovd">Asia/Hovd</option>
+                        <option {{if eq $.Info.Location "Asia/Irkutsk"}}selected{{end}} value="Asia/Irkutsk">Asia/Irkutsk</option>
+                        <option {{if eq $.Info.Location "Asia/Jakarta"}}selected{{end}} value="Asia/Jakarta">Asia/Jakarta</option>
+                        <option {{if eq $.Info.Location "Asia/Jayapura"}}selected{{end}} value="Asia/Jayapura">Asia/Jayapura</option>
+                        <option {{if eq $.Info.Location "Asia/Kabul"}}selected{{end}} value="Asia/Kabul">Asia/Kabul</option>
+                        <option {{if eq $.Info.Location "Asia/Kamchatka"}}selected{{end}} value="Asia/Kamchatka">Asia/Kamchatka</option>
+                        <option {{if eq $.Info.Location "Asia/Karachi"}}selected{{end}} value="Asia/Karachi">Asia/Karachi</option>
+                        <option {{if eq $.Info.Location "Asia/Khandyga"}}selected{{end}} value="Asia/Khandyga">Asia/Khandyga</option>
+                        <option {{if eq $.Info.Location "Asia/Krasnoyarsk"}}selected{{end}} value="Asia/Krasnoyarsk">Asia/Krasnoyarsk</option>
+                        <option {{if eq $.Info.Location "Asia/Kuala_Lumpur"}}selected{{end}} value="Asia/Kuala_Lumpur">Asia/Kuala_Lumpur</option>
+                        <option {{if eq $.Info.Location "Asia/Kuching"}}selected{{end}} value="Asia/Kuching">Asia/Kuching</option>
+                        <option {{if eq $.Info.Location "Asia/Magadan"}}selected{{end}} value="Asia/Magadan">Asia/Magadan</option>
+                        <option {{if eq $.Info.Location "Asia/Manila"}}selected{{end}} value="Asia/Manila">Asia/Manila</option>
+                        <option {{if eq $.Info.Location "Asia/Novokuznetsk"}}selected{{end}} value="Asia/Novokuznetsk">Asia/Novokuznetsk</option>
+                        <option {{if eq $.Info.Location "Asia/Novosibirsk"}}selected{{end}} value="Asia/Novosibirsk">Asia/Novosibirsk</option>
+                        <option {{if eq $.Info.Location "Asia/Omsk"}}selected{{end}} value="Asia/Omsk">Asia/Omsk</option>
+                        <option {{if eq $.Info.Location "Asia/Oral"}}selected{{end}} value="Asia/Oral">Asia/Oral</option>
+                        <option {{if eq $.Info.Location "Asia/Pontianak"}}selected{{end}} value="Asia/Pontianak">Asia/Pontianak</option>
+                        <option {{if eq $.Info.Location "Asia/Pyongyang"}}selected{{end}} value="Asia/Pyongyang">Asia/Pyongyang</option>
+                        <option {{if eq $.Info.Location "Asia/Qyzylorda"}}selected{{end}} value="Asia/Qyzylorda">Asia/Qyzylorda</option>
+                        <option {{if eq $.Info.Location "Asia/Rangoon"}}selected{{end}} value="Asia/Rangoon">Asia/Rangoon</option>
+                        <option {{if eq $.Info.Location "Asia/Sakhalin"}}selected{{end}} value="Asia/Sakhalin">Asia/Sakhalin</option>
+                        <option {{if eq $.Info.Location "Asia/Samarkand"}}selected{{end}} value="Asia/Samarkand">Asia/Samarkand</option>
+                        <option {{if eq $.Info.Location "Asia/Ho_Chi_Minh"}}selected{{end}} value="Asia/Ho_Chi_Minh">Asia/Ho_Chi_Minh</option>
+                        <option {{if eq $.Info.Location "Asia/Srednekolymsk"}}selected{{end}} value="Asia/Srednekolymsk">Asia/Srednekolymsk</option>
+                        <option {{if eq $.Info.Location "Asia/Tashkent"}}selected{{end}} value="Asia/Tashkent">Asia/Tashkent</option>
+                        <option {{if eq $.Info.Location "Asia/Tbilisi"}}selected{{end}} value="Asia/Tbilisi">Asia/Tbilisi</option>
+                        <option {{if eq $.Info.Location "Asia/Tomsk"}}selected{{end}} value="Asia/Tomsk">Asia/Tomsk</option>
+                        <option {{if eq $.Info.Location "Asia/Ust-Nera"}}selected{{end}} value="Asia/Ust-Nera">Asia/Ust-Nera</option>
+                        <option {{if eq $.Info.Location "Asia/Vladivostok"}}selected{{end}} value="Asia/Vladivostok">Asia/Vladivostok</option>
+                        <option {{if eq $.Info.Location "Asia/Yakutsk"}}selected{{end}} value="Asia/Yakutsk">Asia/Yakutsk</option>
+                        <option {{if eq $.Info.Location "Asia/Hong_Kong"}}selected{{end}} value="Asia/Hong_Kong">Asia/Hong_Kong</option>
+                        <option {{if eq $.Info.Location "Asia/Yekaterinburg"}}selected{{end}} value="Asia/Yekaterinburg">Asia/Yekaterinburg</option>
+                        <option {{if eq $.Info.Location "Asia/Yerevan"}}selected{{end}} value="Asia/Yerevan">Asia/Yerevan</option>
+                        <option {{if eq $.Info.Location "Asia/Shanghai"}}selected{{end}} value="Asia/Shanghai">Asia/Shanghai</option>
+                        <option {{if eq $.Info.Location "Asia/Dacca"}}selected{{end}} value="Asia/Dacca">Asia/Dacca</option>
+                        <option {{if eq $.Info.Location "Asia/Saigon"}}selected{{end}} value="Asia/Saigon">Asia/Saigon</option>
+                        <option {{if eq $.Info.Location "Asia/Aden"}}selected{{end}} value="Asia/Aden">Asia/Aden</option>
+                        <option {{if eq $.Info.Location "Asia/Kuwait"}}selected{{end}} value="Asia/Kuwait">Asia/Kuwait</option>
+                        <option {{if eq $.Info.Location "Asia/Riyadh"}}selected{{end}} value="Asia/Riyadh">Asia/Riyadh</option>
+                        <option {{if eq $.Info.Location "Asia/Chongqing"}}selected{{end}} value="Asia/Chongqing">Asia/Chongqing</option>
+                        <option {{if eq $.Info.Location "Asia/Tel_Aviv"}}selected{{end}} value="Asia/Tel_Aviv">Asia/Tel_Aviv</option>
+                        <option {{if eq $.Info.Location "Asia/Ashgabat"}}selected{{end}} value="Asia/Ashgabat">Asia/Ashgabat</option>
+                        <option {{if eq $.Info.Location "Asia/Ashkhabad"}}selected{{end}} value="Asia/Ashkhabad">Asia/Ashkhabad</option>
+                        <option {{if eq $.Info.Location "Asia/Chungking"}}selected{{end}} value="Asia/Chungking">Asia/Chungking</option>
+                        <option {{if eq $.Info.Location "Asia/Istanbul"}}selected{{end}} value="Asia/Istanbul">Asia/Istanbul</option>
+                        <option {{if eq $.Info.Location "Asia/Bahrain"}}selected{{end}} value="Asia/Bahrain">Asia/Bahrain</option>
+                        <option {{if eq $.Info.Location "Asia/Qatar"}}selected{{end}} value="Asia/Qatar">Asia/Qatar</option>
+                        <option {{if eq $.Info.Location "Asia/Harbin"}}selected{{end}} value="Asia/Harbin">Asia/Harbin</option>
+                        <option {{if eq $.Info.Location "Asia/Dhaka"}}selected{{end}} value="Asia/Dhaka">Asia/Dhaka</option>
+                        <option {{if eq $.Info.Location "Asia/Dubai"}}selected{{end}} value="Asia/Dubai">Asia/Dubai</option>
+                        <option {{if eq $.Info.Location "Asia/Ulaanbaatar"}}selected{{end}} value="Asia/Ulaanbaatar">Asia/Ulaanbaatar</option>
+                        <option {{if eq $.Info.Location "Asia/Bangkok"}}selected{{end}} value="Asia/Bangkok">Asia/Bangkok</option>
+                        <option {{if eq $.Info.Location "Asia/Phnom_Penh"}}selected{{end}} value="Asia/Phnom_Penh">Asia/Phnom_Penh</option>
+                        <option {{if eq $.Info.Location "Asia/Vientiane"}}selected{{end}} value="Asia/Vientiane">Asia/Vientiane</option>
+                        <option {{if eq $.Info.Location "Asia/Muscat"}}selected{{end}} value="Asia/Muscat">Asia/Muscat</option>
+                        <option {{if eq $.Info.Location "Asia/Jerusalem"}}selected{{end}} value="Asia/Jerusalem">Asia/Jerusalem</option>
+                        <option {{if eq $.Info.Location "Asia/Calcutta"}}selected{{end}} value="Asia/Calcutta">Asia/Calcutta</option>
+                        <option {{if eq $.Info.Location "Asia/Kolkata"}}selected{{end}} value="Asia/Kolkata">Asia/Kolkata</option>
+                        <option {{if eq $.Info.Location "Asia/Kathmandu"}}selected{{end}} value="Asia/Kathmandu">Asia/Kathmandu</option>
+                        <option {{if eq $.Info.Location "Asia/Katmandu"}}selected{{end}} value="Asia/Katmandu">Asia/Katmandu</option>
+                        <option {{if eq $.Info.Location "Asia/Thimbu"}}selected{{end}} value="Asia/Thimbu">Asia/Thimbu</option>
+                        <option {{if eq $.Info.Location "Asia/Yangon"}}selected{{end}} value="Asia/Yangon">Asia/Yangon</option>
+                        <option {{if eq $.Info.Location "Asia/Macao"}}selected{{end}} value="Asia/Macao">Asia/Macao</option>
+                        <option {{if eq $.Info.Location "Asia/Macau"}}selected{{end}} value="Asia/Macau">Asia/Macau</option>
+                        <option {{if eq $.Info.Location "Asia/Thimphu"}}selected{{end}} value="Asia/Thimphu">Asia/Thimphu</option>
+                        <option {{if eq $.Info.Location "Asia/Makassar"}}selected{{end}} value="Asia/Makassar">Asia/Makassar</option>
+                        <option {{if eq $.Info.Location "Asia/Ujung_Pandang"}}selected{{end}} value="Asia/Ujung_Pandang">Asia/Ujung_Pandang</option>
+                        <option {{if eq $.Info.Location "Asia/Nicosia"}}selected{{end}} value="Asia/Nicosia">Asia/Nicosia</option>
+                        <option {{if eq $.Info.Location "Asia/Seoul"}}selected{{end}} value="Asia/Seoul">Asia/Seoul</option>
+                        <option {{if eq $.Info.Location "Asia/Singapore"}}selected{{end}} value="Asia/Singapore">Asia/Singapore</option>
+                        <option {{if eq $.Info.Location "Asia/Taipei"}}selected{{end}} value="Asia/Taipei">Asia/Taipei</option>
+                        <option {{if eq $.Info.Location "Asia/Tehran"}}selected{{end}} value="Asia/Tehran">Asia/Tehran</option>
+                        <option {{if eq $.Info.Location "Asia/Tokyo"}}selected{{end}} value="Asia/Tokyo">Asia/Tokyo</option>
+                        <option {{if eq $.Info.Location "Asia/Ulan_Bator"}}selected{{end}} value="Asia/Ulan_Bator">Asia/Ulan_Bator</option>
+                        <option {{if eq $.Info.Location "Atlantic/Azores"}}selected{{end}} value="Atlantic/Azores">Atlantic/Azores</option>
+                        <option {{if eq $.Info.Location "Atlantic/Bermuda"}}selected{{end}} value="Atlantic/Bermuda">Atlantic/Bermuda</option>
+                        <option {{if eq $.Info.Location "Atlantic/Canary"}}selected{{end}} value="Atlantic/Canary">Atlantic/Canary</option>
+                        <option {{if eq $.Info.Location "Atlantic/Cape_Verde"}}selected{{end}} value="Atlantic/Cape_Verde">Atlantic/Cape_Verde</option>
+                        <option {{if eq $.Info.Location "Atlantic/Madeira"}}selected{{end}} value="Atlantic/Madeira">Atlantic/Madeira</option>
+                        <option {{if eq $.Info.Location "Atlantic/South_Georgia"}}selected{{end}} value="Atlantic/South_Georgia">Atlantic/South_Georgia</option>
+                        <option {{if eq $.Info.Location "Atlantic/Stanley"}}selected{{end}} value="Atlantic/Stanley">Atlantic/Stanley</option>
+                        <option {{if eq $.Info.Location "Atlantic/St_Helena"}}selected{{end}} value="Atlantic/St_Helena">Atlantic/St_Helena</option>
+                        <option {{if eq $.Info.Location "Atlantic/Jan_Mayen"}}selected{{end}} value="Atlantic/Jan_Mayen">Atlantic/Jan_Mayen</option>
+                        <option {{if eq $.Info.Location "Atlantic/Faeroe"}}selected{{end}} value="Atlantic/Faeroe">Atlantic/Faeroe</option>
+                        <option {{if eq $.Info.Location "Atlantic/Faroe"}}selected{{end}} value="Atlantic/Faroe">Atlantic/Faroe</option>
+                        <option {{if eq $.Info.Location "Atlantic/Reykjavik"}}selected{{end}} value="Atlantic/Reykjavik">Atlantic/Reykjavik</option>
+                        <option {{if eq $.Info.Location "Australia/Currie"}}selected{{end}} value="Australia/Currie">Australia/Currie</option>
+                        <option {{if eq $.Info.Location "Australia/Eucla"}}selected{{end}} value="Australia/Eucla">Australia/Eucla</option>
+                        <option {{if eq $.Info.Location "Australia/Lindeman"}}selected{{end}} value="Australia/Lindeman">Australia/Lindeman</option>
+                        <option {{if eq $.Info.Location "Australia/ACT"}}selected{{end}} value="Australia/ACT">Australia/ACT</option>
+                        <option {{if eq $.Info.Location "Australia/Canberra"}}selected{{end}} value="Australia/Canberra">Australia/Canberra</option>
+                        <option {{if eq $.Info.Location "Australia/NSW"}}selected{{end}} value="Australia/NSW">Australia/NSW</option>
+                        <option {{if eq $.Info.Location "Australia/Sydney"}}selected{{end}} value="Australia/Sydney">Australia/Sydney</option>
+                        <option {{if eq $.Info.Location "Australia/Adelaide"}}selected{{end}} value="Australia/Adelaide">Australia/Adelaide</option>
+                        <option {{if eq $.Info.Location "Australia/South"}}selected{{end}} value="Australia/South">Australia/South</option>
+                        <option {{if eq $.Info.Location "Australia/Brisbane"}}selected{{end}} value="Australia/Brisbane">Australia/Brisbane</option>
+                        <option {{if eq $.Info.Location "Australia/Queensland"}}selected{{end}} value="Australia/Queensland">Australia/Queensland</option>
+                        <option {{if eq $.Info.Location "Australia/Broken_Hill"}}selected{{end}} value="Australia/Broken_Hill">Australia/Broken_Hill</option>
+                        <option {{if eq $.Info.Location "Australia/Yancowinna"}}selected{{end}} value="Australia/Yancowinna">Australia/Yancowinna</option>
+                        <option {{if eq $.Info.Location "Australia/Darwin"}}selected{{end}} value="Australia/Darwin">Australia/Darwin</option>
+                        <option {{if eq $.Info.Location "Australia/North"}}selected{{end}} value="Australia/North">Australia/North</option>
+                        <option {{if eq $.Info.Location "Australia/Hobart"}}selected{{end}} value="Australia/Hobart">Australia/Hobart</option>
+                        <option {{if eq $.Info.Location "Australia/Tasmania"}}selected{{end}} value="Australia/Tasmania">Australia/Tasmania</option>
+                        <option {{if eq $.Info.Location "Australia/LHI"}}selected{{end}} value="Australia/LHI">Australia/LHI</option>
+                        <option {{if eq $.Info.Location "Australia/Lord_Howe"}}selected{{end}} value="Australia/Lord_Howe">Australia/Lord_Howe</option>
+                        <option {{if eq $.Info.Location "Australia/Melbourne"}}selected{{end}} value="Australia/Melbourne">Australia/Melbourne</option>
+                        <option {{if eq $.Info.Location "Australia/Victoria"}}selected{{end}} value="Australia/Victoria">Australia/Victoria</option>
+                        <option {{if eq $.Info.Location "Australia/Perth"}}selected{{end}} value="Australia/Perth">Australia/Perth</option>
+                        <option {{if eq $.Info.Location "Australia/West"}}selected{{end}} value="Australia/West">Australia/West</option>
+                        <option {{if eq $.Info.Location "Brazil/West"}}selected{{end}} value="Brazil/West">Brazil/West</option>
+                        <option {{if eq $.Info.Location "Brazil/DeNoronha"}}selected{{end}} value="Brazil/DeNoronha">Brazil/DeNoronha</option>
+                        <option {{if eq $.Info.Location "Brazil/Acre"}}selected{{end}} value="Brazil/Acre">Brazil/Acre</option>
+                        <option {{if eq $.Info.Location "Brazil/East"}}selected{{end}} value="Brazil/East">Brazil/East</option>
+                        <option {{if eq $.Info.Location "Canada/Mountain"}}selected{{end}} value="Canada/Mountain">Canada/Mountain</option>
+                        <option {{if eq $.Info.Location "Canada/Atlantic"}}selected{{end}} value="Canada/Atlantic">Canada/Atlantic</option>
+                        <option {{if eq $.Info.Location "Canada/Eastern"}}selected{{end}} value="Canada/Eastern">Canada/Eastern</option>
+                        <option {{if eq $.Info.Location "Canada/East-Saskatchewan"}}selected{{end}} value="Canada/East-Saskatchewan">Canada/East-Saskatchewan</option>
+                        <option {{if eq $.Info.Location "Canada/Saskatchewan"}}selected{{end}} value="Canada/Saskatchewan">Canada/Saskatchewan</option>
+                        <option {{if eq $.Info.Location "Canada/Newfoundland"}}selected{{end}} value="Canada/Newfoundland">Canada/Newfoundland</option>
+                        <option {{if eq $.Info.Location "Canada/Pacific"}}selected{{end}} value="Canada/Pacific">Canada/Pacific</option>
+                        <option {{if eq $.Info.Location "Canada/Yukon"}}selected{{end}} value="Canada/Yukon">Canada/Yukon</option>
+                        <option {{if eq $.Info.Location "Canada/Central"}}selected{{end}} value="Canada/Central">Canada/Central</option>
+                        <option {{if eq $.Info.Location "Chile/Continental"}}selected{{end}} value="Chile/Continental">Chile/Continental</option>
+                        <option {{if eq $.Info.Location "Chile/EasterIsland"}}selected{{end}} value="Chile/EasterIsland">Chile/EasterIsland</option>
+                        <option {{if eq $.Info.Location "Europe/Amsterdam"}}selected{{end}} value="Europe/Amsterdam">Europe/Amsterdam</option>
+                        <option {{if eq $.Info.Location "Europe/Andorra"}}selected{{end}} value="Europe/Andorra">Europe/Andorra</option>
+                        <option {{if eq $.Info.Location "Europe/Astrakhan"}}selected{{end}} value="Europe/Astrakhan">Europe/Astrakhan</option>
+                        <option {{if eq $.Info.Location "Europe/Athens"}}selected{{end}} value="Europe/Athens">Europe/Athens</option>
+                        <option {{if eq $.Info.Location "Europe/Berlin"}}selected{{end}} value="Europe/Berlin">Europe/Berlin</option>
+                        <option {{if eq $.Info.Location "Europe/Brussels"}}selected{{end}} value="Europe/Brussels">Europe/Brussels</option>
+                        <option {{if eq $.Info.Location "Europe/Bucharest"}}selected{{end}} value="Europe/Bucharest">Europe/Bucharest</option>
+                        <option {{if eq $.Info.Location "Europe/Budapest"}}selected{{end}} value="Europe/Budapest">Europe/Budapest</option>
+                        <option {{if eq $.Info.Location "Europe/Copenhagen"}}selected{{end}} value="Europe/Copenhagen">Europe/Copenhagen</option>
+                        <option {{if eq $.Info.Location "Europe/Gibraltar"}}selected{{end}} value="Europe/Gibraltar">Europe/Gibraltar</option>
+                        <option {{if eq $.Info.Location "Europe/Kaliningrad"}}selected{{end}} value="Europe/Kaliningrad">Europe/Kaliningrad</option>
+                        <option {{if eq $.Info.Location "Europe/Kiev"}}selected{{end}} value="Europe/Kiev">Europe/Kiev</option>
+                        <option {{if eq $.Info.Location "Europe/Kirov"}}selected{{end}} value="Europe/Kirov">Europe/Kirov</option>
+                        <option {{if eq $.Info.Location "Europe/Luxembourg"}}selected{{end}} value="Europe/Luxembourg">Europe/Luxembourg</option>
+                        <option {{if eq $.Info.Location "Europe/Madrid"}}selected{{end}} value="Europe/Madrid">Europe/Madrid</option>
+                        <option {{if eq $.Info.Location "Europe/Malta"}}selected{{end}} value="Europe/Malta">Europe/Malta</option>
+                        <option {{if eq $.Info.Location "Europe/Minsk"}}selected{{end}} value="Europe/Minsk">Europe/Minsk</option>
+                        <option {{if eq $.Info.Location "Europe/Monaco"}}selected{{end}} value="Europe/Monaco">Europe/Monaco</option>
+                        <option {{if eq $.Info.Location "Europe/Paris"}}selected{{end}} value="Europe/Paris">Europe/Paris</option>
+                        <option {{if eq $.Info.Location "Europe/Riga"}}selected{{end}} value="Europe/Riga">Europe/Riga</option>
+                        <option {{if eq $.Info.Location "Europe/Samara"}}selected{{end}} value="Europe/Samara">Europe/Samara</option>
+                        <option {{if eq $.Info.Location "Europe/Simferopol"}}selected{{end}} value="Europe/Simferopol">Europe/Simferopol</option>
+                        <option {{if eq $.Info.Location "Europe/Sofia"}}selected{{end}} value="Europe/Sofia">Europe/Sofia</option>
+                        <option {{if eq $.Info.Location "Europe/Stockholm"}}selected{{end}} value="Europe/Stockholm">Europe/Stockholm</option>
+                        <option {{if eq $.Info.Location "Europe/Tallinn"}}selected{{end}} value="Europe/Tallinn">Europe/Tallinn</option>
+                        <option {{if eq $.Info.Location "Europe/Tirane"}}selected{{end}} value="Europe/Tirane">Europe/Tirane</option>
+                        <option {{if eq $.Info.Location "Europe/Ulyanovsk"}}selected{{end}} value="Europe/Ulyanovsk">Europe/Ulyanovsk</option>
+                        <option {{if eq $.Info.Location "Europe/Uzhgorod"}}selected{{end}} value="Europe/Uzhgorod">Europe/Uzhgorod</option>
+                        <option {{if eq $.Info.Location "Europe/Vienna"}}selected{{end}} value="Europe/Vienna">Europe/Vienna</option>
+                        <option {{if eq $.Info.Location "Europe/Vilnius"}}selected{{end}} value="Europe/Vilnius">Europe/Vilnius</option>
+                        <option {{if eq $.Info.Location "Europe/Volgograd"}}selected{{end}} value="Europe/Volgograd">Europe/Volgograd</option>
+                        <option {{if eq $.Info.Location "Europe/Zaporozhye"}}selected{{end}} value="Europe/Zaporozhye">Europe/Zaporozhye</option>
+                        <option {{if eq $.Info.Location "Europe/Oslo"}}selected{{end}} value="Europe/Oslo">Europe/Oslo</option>
+                        <option {{if eq $.Info.Location "Europe/Istanbul"}}selected{{end}} value="Europe/Istanbul">Europe/Istanbul</option>
+                        <option {{if eq $.Info.Location "Europe/Nicosia"}}selected{{end}} value="Europe/Nicosia">Europe/Nicosia</option>
+                        <option {{if eq $.Info.Location "Europe/Dublin"}}selected{{end}} value="Europe/Dublin">Europe/Dublin</option>
+                        <option {{if eq $.Info.Location "Europe/Belfast"}}selected{{end}} value="Europe/Belfast">Europe/Belfast</option>
+                        <option {{if eq $.Info.Location "Europe/Guernsey"}}selected{{end}} value="Europe/Guernsey">Europe/Guernsey</option>
+                        <option {{if eq $.Info.Location "Europe/Isle_of_Man"}}selected{{end}} value="Europe/Isle_of_Man">Europe/Isle_of_Man</option>
+                        <option {{if eq $.Info.Location "Europe/Jersey"}}selected{{end}} value="Europe/Jersey">Europe/Jersey</option>
+                        <option {{if eq $.Info.Location "Europe/London"}}selected{{end}} value="Europe/London">Europe/London</option>
+                        <option {{if eq $.Info.Location "Europe/Warsaw"}}selected{{end}} value="Europe/Warsaw">Europe/Warsaw</option>
+                        <option {{if eq $.Info.Location "Europe/Belgrade"}}selected{{end}} value="Europe/Belgrade">Europe/Belgrade</option>
+                        <option {{if eq $.Info.Location "Europe/Ljubljana"}}selected{{end}} value="Europe/Ljubljana">Europe/Ljubljana</option>
+                        <option {{if eq $.Info.Location "Europe/Podgorica"}}selected{{end}} value="Europe/Podgorica">Europe/Podgorica</option>
+                        <option {{if eq $.Info.Location "Europe/Sarajevo"}}selected{{end}} value="Europe/Sarajevo">Europe/Sarajevo</option>
+                        <option {{if eq $.Info.Location "Europe/Skopje"}}selected{{end}} value="Europe/Skopje">Europe/Skopje</option>
+                        <option {{if eq $.Info.Location "Europe/Zagreb"}}selected{{end}} value="Europe/Zagreb">Europe/Zagreb</option>
+                        <option {{if eq $.Info.Location "Europe/Bratislava"}}selected{{end}} value="Europe/Bratislava">Europe/Bratislava</option>
+                        <option {{if eq $.Info.Location "Europe/Prague"}}selected{{end}} value="Europe/Prague">Europe/Prague</option>
+                        <option {{if eq $.Info.Location "Europe/Busingen"}}selected{{end}} value="Europe/Busingen">Europe/Busingen</option>
+                        <option {{if eq $.Info.Location "Europe/Vaduz"}}selected{{end}} value="Europe/Vaduz">Europe/Vaduz</option>
+                        <option {{if eq $.Info.Location "Europe/Zurich"}}selected{{end}} value="Europe/Zurich">Europe/Zurich</option>
+                        <option {{if eq $.Info.Location "Europe/Chisinau"}}selected{{end}} value="Europe/Chisinau">Europe/Chisinau</option>
+                        <option {{if eq $.Info.Location "Europe/Tiraspol"}}selected{{end}} value="Europe/Tiraspol">Europe/Tiraspol</option>
+                        <option {{if eq $.Info.Location "Europe/Helsinki"}}selected{{end}} value="Europe/Helsinki">Europe/Helsinki</option>
+                        <option {{if eq $.Info.Location "Europe/Mariehamn"}}selected{{end}} value="Europe/Mariehamn">Europe/Mariehamn</option>
+                        <option {{if eq $.Info.Location "Europe/Lisbon"}}selected{{end}} value="Europe/Lisbon">Europe/Lisbon</option>
+                        <option {{if eq $.Info.Location "Europe/Moscow"}}selected{{end}} value="Europe/Moscow">Europe/Moscow</option>
+                        <option {{if eq $.Info.Location "Europe/Rome"}}selected{{end}} value="Europe/Rome">Europe/Rome</option>
+                        <option {{if eq $.Info.Location "Europe/San_Marino"}}selected{{end}} value="Europe/San_Marino">Europe/San_Marino</option>
+                        <option {{if eq $.Info.Location "Europe/Vatican"}}selected{{end}} value="Europe/Vatican">Europe/Vatican</option>
+                        <option {{if eq $.Info.Location "Indian/Chagos"}}selected{{end}} value="Indian/Chagos">Indian/Chagos</option>
+                        <option {{if eq $.Info.Location "Indian/Christmas"}}selected{{end}} value="Indian/Christmas">Indian/Christmas</option>
+                        <option {{if eq $.Info.Location "Indian/Cocos"}}selected{{end}} value="Indian/Cocos">Indian/Cocos</option>
+                        <option {{if eq $.Info.Location "Indian/Kerguelen"}}selected{{end}} value="Indian/Kerguelen">Indian/Kerguelen</option>
+                        <option {{if eq $.Info.Location "Indian/Mahe"}}selected{{end}} value="Indian/Mahe">Indian/Mahe</option>
+                        <option {{if eq $.Info.Location "Indian/Maldives"}}selected{{end}} value="Indian/Maldives">Indian/Maldives</option>
+                        <option {{if eq $.Info.Location "Indian/Mauritius"}}selected{{end}} value="Indian/Mauritius">Indian/Mauritius</option>
+                        <option {{if eq $.Info.Location "Indian/Reunion"}}selected{{end}} value="Indian/Reunion">Indian/Reunion</option>
+                        <option {{if eq $.Info.Location "Indian/Antananarivo"}}selected{{end}} value="Indian/Antananarivo">Indian/Antananarivo</option>
+                        <option {{if eq $.Info.Location "Indian/Comoro"}}selected{{end}} value="Indian/Comoro">Indian/Comoro</option>
+                        <option {{if eq $.Info.Location "Indian/Mayotte"}}selected{{end}} value="Indian/Mayotte">Indian/Mayotte</option>
+                        <option {{if eq $.Info.Location "Mexico/BajaNorte"}}selected{{end}} value="Mexico/BajaNorte">Mexico/BajaNorte</option>
+                        <option {{if eq $.Info.Location "Mexico/BajaSur"}}selected{{end}} value="Mexico/BajaSur">Mexico/BajaSur</option>
+                        <option {{if eq $.Info.Location "Mexico/General"}}selected{{end}} value="Mexico/General">Mexico/General</option>
+                        <option {{if eq $.Info.Location "Pacific/Apia"}}selected{{end}} value="Pacific/Apia">Pacific/Apia</option>
+                        <option {{if eq $.Info.Location "Pacific/Bougainville"}}selected{{end}} value="Pacific/Bougainville">Pacific/Bougainville</option>
+                        <option {{if eq $.Info.Location "Pacific/Efate"}}selected{{end}} value="Pacific/Efate">Pacific/Efate</option>
+                        <option {{if eq $.Info.Location "Pacific/Enderbury"}}selected{{end}} value="Pacific/Enderbury">Pacific/Enderbury</option>
+                        <option {{if eq $.Info.Location "Pacific/Fakaofo"}}selected{{end}} value="Pacific/Fakaofo">Pacific/Fakaofo</option>
+                        <option {{if eq $.Info.Location "Pacific/Fiji"}}selected{{end}} value="Pacific/Fiji">Pacific/Fiji</option>
+                        <option {{if eq $.Info.Location "Pacific/Funafuti"}}selected{{end}} value="Pacific/Funafuti">Pacific/Funafuti</option>
+                        <option {{if eq $.Info.Location "Pacific/Galapagos"}}selected{{end}} value="Pacific/Galapagos">Pacific/Galapagos</option>
+                        <option {{if eq $.Info.Location "Pacific/Gambier"}}selected{{end}} value="Pacific/Gambier">Pacific/Gambier</option>
+                        <option {{if eq $.Info.Location "Pacific/Guadalcanal"}}selected{{end}} value="Pacific/Guadalcanal">Pacific/Guadalcanal</option>
+                        <option {{if eq $.Info.Location "Pacific/Kiritimati"}}selected{{end}} value="Pacific/Kiritimati">Pacific/Kiritimati</option>
+                        <option {{if eq $.Info.Location "Pacific/Kosrae"}}selected{{end}} value="Pacific/Kosrae">Pacific/Kosrae</option>
+                        <option {{if eq $.Info.Location "Pacific/Majuro"}}selected{{end}} value="Pacific/Majuro">Pacific/Majuro</option>
+                        <option {{if eq $.Info.Location "Pacific/Marquesas"}}selected{{end}} value="Pacific/Marquesas">Pacific/Marquesas</option>
+                        <option {{if eq $.Info.Location "Pacific/Nauru"}}selected{{end}} value="Pacific/Nauru">Pacific/Nauru</option>
+                        <option {{if eq $.Info.Location "Pacific/Niue"}}selected{{end}} value="Pacific/Niue">Pacific/Niue</option>
+                        <option {{if eq $.Info.Location "Pacific/Norfolk"}}selected{{end}} value="Pacific/Norfolk">Pacific/Norfolk</option>
+                        <option {{if eq $.Info.Location "Pacific/Noumea"}}selected{{end}} value="Pacific/Noumea">Pacific/Noumea</option>
+                        <option {{if eq $.Info.Location "Pacific/Palau"}}selected{{end}} value="Pacific/Palau">Pacific/Palau</option>
+                        <option {{if eq $.Info.Location "Pacific/Pitcairn"}}selected{{end}} value="Pacific/Pitcairn">Pacific/Pitcairn</option>
+                        <option {{if eq $.Info.Location "Pacific/Port_Moresby"}}selected{{end}} value="Pacific/Port_Moresby">Pacific/Port_Moresby</option>
+                        <option {{if eq $.Info.Location "Pacific/Rarotonga"}}selected{{end}} value="Pacific/Rarotonga">Pacific/Rarotonga</option>
+                        <option {{if eq $.Info.Location "Pacific/Tahiti"}}selected{{end}} value="Pacific/Tahiti">Pacific/Tahiti</option>
+                        <option {{if eq $.Info.Location "Pacific/Tarawa"}}selected{{end}} value="Pacific/Tarawa">Pacific/Tarawa</option>
+                        <option {{if eq $.Info.Location "Pacific/Tongatapu"}}selected{{end}} value="Pacific/Tongatapu">Pacific/Tongatapu</option>
+                        <option {{if eq $.Info.Location "Pacific/Wake"}}selected{{end}} value="Pacific/Wake">Pacific/Wake</option>
+                        <option {{if eq $.Info.Location "Pacific/Wallis"}}selected{{end}} value="Pacific/Wallis">Pacific/Wallis</option>
+                        <option {{if eq $.Info.Location "Pacific/Auckland"}}selected{{end}} value="Pacific/Auckland">Pacific/Auckland</option>
+                        <option {{if eq $.Info.Location "Pacific/Easter"}}selected{{end}} value="Pacific/Easter">Pacific/Easter</option>
+                        <option {{if eq $.Info.Location "Pacific/Kwajalein"}}selected{{end}} value="Pacific/Kwajalein">Pacific/Kwajalein</option>
+                        <option {{if eq $.Info.Location "Pacific/Chatham"}}selected{{end}} value="Pacific/Chatham">Pacific/Chatham</option>
+                        <option {{if eq $.Info.Location "Pacific/Chuuk"}}selected{{end}} value="Pacific/Chuuk">Pacific/Chuuk</option>
+                        <option {{if eq $.Info.Location "Pacific/Truk"}}selected{{end}} value="Pacific/Truk">Pacific/Truk</option>
+                        <option {{if eq $.Info.Location "Pacific/Yap"}}selected{{end}} value="Pacific/Yap">Pacific/Yap</option>
+                        <option {{if eq $.Info.Location "Pacific/Guam"}}selected{{end}} value="Pacific/Guam">Pacific/Guam</option>
+                        <option {{if eq $.Info.Location "Pacific/Saipan"}}selected{{end}} value="Pacific/Saipan">Pacific/Saipan</option>
+                        <option {{if eq $.Info.Location "Pacific/Honolulu"}}selected{{end}} value="Pacific/Honolulu">Pacific/Honolulu</option>
+                        <option {{if eq $.Info.Location "Pacific/Johnston"}}selected{{end}} value="Pacific/Johnston">Pacific/Johnston</option>
+                        <option {{if eq $.Info.Location "Pacific/Midway"}}selected{{end}} value="Pacific/Midway">Pacific/Midway</option>
+                        <option {{if eq $.Info.Location "Pacific/Pago_Pago"}}selected{{end}} value="Pacific/Pago_Pago">Pacific/Pago_Pago</option>
+                        <option {{if eq $.Info.Location "Pacific/Samoa"}}selected{{end}} value="Pacific/Samoa">Pacific/Samoa</option>
+                        <option {{if eq $.Info.Location "Pacific/Pohnpei"}}selected{{end}} value="Pacific/Pohnpei">Pacific/Pohnpei</option>
+                        <option {{if eq $.Info.Location "Pacific/Ponape"}}selected{{end}} value="Pacific/Ponape">Pacific/Ponape</option>
+                    </select>
+                </div>
             </div>
-            <div class="field">
-                <div class="ui small header">Current Password</div>
-                <input name="current_password" type="password" placeholder="Current Password" value="">
+
+            <div class="ui hidden divider"></div>
+            <div class="ui teal dividing header">Custom Domain</div>
+            <div class="ui message">
+                <i class="info circle grey icon"></i>
+                Create a <b>CNAME</b> record for your domain {{if $.Info.Domain}}<b>{{$.Info.Domain}}</b>{{else}}(e.g. <b>frequency.example.com</b>){{end}} pointing to <b>{{$.HTTPHost}}.</b><i class="long arrow alternate left icon"></i> include the trailing period!
             </div>
-            <div class="field">
-                <div class="ui small header">New Password</div>
-                <input name="new_password" type="password" placeholder="New Password" value="">
+            <div class="ui hidden divider"></div>
+
+            <div class="equal width fields">
+                <div class="field">
+                    <div class="ui small header">Domain Name</div>
+                    <input name="domain" type="text" placeholder="e.g. frequency.example.com" value="{{$.Info.Domain}}">
+                </div>
+                <div class="field mobile hidden">
+                    &nbsp;
+                </div>
             </div>
+
+            <div class="ui hidden divider"></div>
+            <div class="ui teal dividing header">Single Sign-On (SAML)</div>
+            <div class="ui message">
+                <i class="info circle grey icon"></i>
+                To enable Single Sign-On using SAML add a custom SAML app in your identity provider's admin panel, then copy/paste the IDP metadata XML below. If you want to use a custom domain for your blog, <a href="/admin/settings">configure</a> that first.
+                <div class="large ui list">
+                    <a class="item" target="_blank" href="https://support.google.com/a/answer/6087519?hl=en"><i class="right triangle icon"></i>Instructions for G Suite users</a>
+                    <a class="item" target="_blank" href="https://developer.okta.com/standards/SAML/setting_up_a_saml_application_in_okta/"><i class="right triangle icon"></i>Instructions for Okta users</a>
+                    <a class="item" target="_blank" href="https://docs.microsoft.com/en-us/azure/active-directory/manage-apps/configure-single-sign-on-non-gallery-applications"><i class="right triangle icon"></i>Instructions for Azure AD users</a>
+                    
+                </div>
+            </div>
+            <div class="ui hidden divider"></div>
+
+            {{with $domain := $.Info.Domain}}
+                <div class="field">
+                    <div class="ui small header">Your ACS URL</div>
+                    <input class="readonly-input" type="text" value="https://{{$domain}}/saml/acs" readonly>
+                </div>
+                <div class="field">
+                    <div class="ui small header">Your Entity ID</div>
+                    <input class="readonly-input" type="text" value="https://{{$domain}}/saml/metadata" readonly>
+                </div>
+            {{else}}
+                <div class="field">
+                    <div class="ui small header">Your ACS URL</div>
+                    <input class="readonly-input" type="text" value="https://{{$.HTTPHost}}/saml/acs" readonly>
+                </div>
+                <div class="field">
+                    <div class="ui small header">Your Entity ID</div>
+                    <input class="readonly-input" type="text" value="https://{{$.HTTPHost}}/saml/metadata" readonly>
+                </div>
+            {{end}}
             <div class="field">
-                <div class="ui small header">Custom Domain</div>
-                <input name="domain" type="text" placeholder="example.com" value="{{$.Info.Domain}}">
+                <div class="ui small header">IDP Metadata</div>
+                <textarea rows="10" name="saml_metadata" placeholder="Enable single sign-on by entering the SAML metadata from your SSO provider.">{{$.Info.SAML.IDPMetadata}}</textarea>
+            </div>
+
+
+            <div class="ui hidden divider"></div>
+            <div class="ui teal dividing header">Change Password</div>
+            <div class="equal width fields">
+                <div class="field">
+                    <div class="ui small header">Current Password</div>
+                    <input name="current_password" type="password" placeholder="Current Password" value="">
+                </div>
+                <div class="field">
+                    <div class="ui small header">New Password</div>
+                    <input name="new_password" type="password" placeholder="New Password" value="">
+                </div>
             </div>
             <div class="equal width fields">
                 <div class="field mobile hidden">&nbsp;</div>
-                <div class="field mobile hidden">&nbsp;</div>
                 <div class="field">
-                    <button type="submit" class="ui huge fluid teal button">Save Changes</button>
+                    <div class="two ui buttons">
+                        <a href="/" class="ui large button">Cancel</a>
+                        <button type="submit" class="ui large teal button">Save</button>
+                    </div>
                 </div>
             </div>
         </form>

@@ -49,7 +49,7 @@ type Stat struct {
 }
 
 func NewStat(property string, start, end int64) *Stat {
-	now := time.Now()
+	now := time.Now().In(getTimezone())
 
 	sy, sm, sd := time.Unix(start, 0).Date()
 	ey, em, ed := time.Unix(end, 0).Date()

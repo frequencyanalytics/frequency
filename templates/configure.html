@@ -3,8 +3,8 @@
 <div class="ui hidden divider"></div>
 
 <div class="ui container">
-    <div class="ui raised padded segment">
-        <div class="ui huge teal dividing header">Create Your Frequency Analytics Account</div>
+    <div class="ui padded segment">
+        <div class="ui large teal dividing header">Create Your Frequency Analytics Account</div>
         <div class="ui hidden divider"></div>
 
         {{with $error := .Request.FormValue "error"}}
@@ -22,7 +22,7 @@
             <div class="ui hidden divider"></div>
         {{end}}
 
-        <div class="ui huge info message">
+        <div class="ui large info message">
             <div class="content">
                 <div class="header">
                     Welcome to your new Frequency Analytics instance!
@@ -33,7 +33,7 @@
 
         <div class="ui hidden divider"></div>
 
-        <form class="ui huge form" action="/configure" method="POST" novalidate autocomplete="off">
+        <form class="ui large form" action="/configure" method="POST" novalidate autocomplete="off">
             <div class="field">
                 <div class="ui small header">Email Address</div>
                 <input name="email" type="email" placeholder="Email Address" value="" autofocus>
@@ -50,7 +50,7 @@
                 <div class="field mobile hidden">&nbsp;</div>
                 <div class="field mobile hidden">&nbsp;</div>
                 <div class="field">
-                    <button type="submit" class="ui huge fluid teal button">Create Account</button>
+                    <button type="submit" class="ui large fluid teal button">Create Account</button>
                 </div>
             </div>
         </form>

@@ -17,8 +17,8 @@
         <div class="ui hidden divider"></div>
     {{end}}
 
-    <div class="ui raised padded segment">
-        <form class="ui huge form" action="/property/dashboard" method="POST">
+    <div class="ui padded segment">
+        <form class="ui large form" action="/property/dashboard" method="POST">
             <input type="hidden" name="property" value="{{$.Property.ID}}">
             <div class="equal width fields">
                 <div class="field">
@@ -28,11 +28,20 @@
                     <input type="text" name="end" placeholder="YYYY/MM/DD" value="{{timestamp $.End}}">
                 </div>
                 <div class="field">
-                    <button type="submit" class="ui huge fluid teal button">Apply</button>
+                    <button type="submit" class="ui large fluid teal button">Apply</button>
                 </div>
             </div>
         </form>
         <!--img class="ui fluid image" src="/property/chart/pageview/{{$.Property.ID}}?start={{$.Start}}&end={{$.End}}"-->
+        {{$selected := $.Request.FormValue "selected"}}
+        <div class="right-aligned">
+            <div class="ui small basic buttons">
+                <a href="/property/dashboard/{{$.Property.ID}}?start={{$.DaysAgo7}}&end={{$.Time.Unix}}&selected=7days" class="ui {{if eq $selected "7days"}}active{{end}} button">7 Days</a>
+                <a href="/property/dashboard/{{$.Property.ID}}?start={{$.DaysAgo30}}&end={{$.Time.Unix}}&selected=30days" class="ui {{if eq $selected "30days"}}active{{end}} button">30 Days</a>
+                <a href="/property/dashboard/{{$.Property.ID}}?start={{$.DaysAgo90}}&end={{$.Time.Unix}}&selected=90days" class="ui {{if eq $selected "90days"}}active{{end}} button">90 Days</a>
+            </div>
+        </div>
+
 
         {{if $.Stats.Events}}
             <canvas id="main-chart"></canvas>
@@ -47,7 +56,7 @@
     {{if $.Stats.Events}}
         <div class="ui two column stackable grid">
             <div class="column">
-                <div class="ui raised padded segment">
+                <div class="ui padded segment">
                     <div class="ui large teal dividing header">
                         Sources
                     </div>
@@ -83,7 +92,7 @@
                 </div>
             </div>
             <div class="column">
-                <div class="ui raised padded segment">
+                <div class="ui padded segment">
                     <div class="ui large teal dividing header">
                         Pages
                     </div>
@@ -101,7 +110,7 @@
                 </div>
             </div>
             <div class="column">
-                <div class="ui raised padded segment">
+                <div class="ui padded segment">
                     <div class="ui large teal dividing header">
                         Referrers
                     </div>
@@ -119,7 +128,7 @@
                 </div>
             </div>
             <div class="column">
-                <div class="ui raised padded segment">
+                <div class="ui padded segment">
                     <div class="ui large teal dividing header">
                         Platforms
                     </div>
@@ -138,7 +147,7 @@
             </div>
         </div>
 
-        <div class="ui raised padded segment">
+        <div class="ui padded segment">
             <div class="ui large teal dividing header">
                 Events
             </div>
@@ -249,6 +258,7 @@
                             },
                             distribution: 'series',
                             ticks: {
+                                autoSkip: true,
                                 source: 'labels'
                             }
                         }],

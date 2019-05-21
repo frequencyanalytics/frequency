@@ -17,13 +17,13 @@
         <div class="ui hidden divider"></div>
     {{end}}
 
-    <div class="ui raised padded segment">
-        <div class="ui huge teal dividing header">
+    <div class="ui padded segment">
+        <div class="ui large teal dividing header">
             Settings
         </div>
         <div class="ui hidden divider"></div>
 
-        <form class="ui huge form" action="/property/settings" method="POST" novalidate autocomplete="off">
+        <form class="ui large form" action="/property/settings" method="POST" novalidate autocomplete="off">
             <input type="hidden" name="property" value="{{$.Property.ID}}">
             <div class="equal width fields">
                 <div class="field">
@@ -49,7 +49,7 @@
                 <div class="field mobile hidden">&nbsp;</div>
                 <div class="field mobile hidden">&nbsp;</div>
                 <div class="field">
-                    <button type="submit" class="ui huge fluid teal button">Save Changes</button>
+                    <button type="submit" class="ui large fluid teal button">Save Changes</button>
                 </div>
             </div>
         </form>
@@ -58,7 +58,7 @@
 
     <div class="ui hidden section divider"></div>
 
-    <div class="ui raised padded segment">
+    <div class="ui padded segment">
         <a href="/property/delete/{{$.Property.ID}}" class="ui red right floated button">Delete</a>
         <div class="ui hidden divider"></div>
         <div class="ui hidden divider"></div>

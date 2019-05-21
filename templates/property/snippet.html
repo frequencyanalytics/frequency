@@ -17,14 +17,14 @@
         <div class="ui hidden divider"></div>
     {{end}}
 
-    <div class="ui raised padded segment">
-        <div class="ui huge teal dividing header">
+    <div class="ui padded segment">
+        <div class="ui large teal dividing header">
             Tracking Code
         </div>
         <div class="ui hidden divider"></div>
 
         <div class="page-text">
-            Adding the following HTML tracking code to your site's templates. The code should be added near the top of the &lt;head&gt; tag and <b>before any other script or CSS tags</b> so that it can be called by them when they load.
+            Add the following HTML tracking code to your site's templates. The code should be inserted near the top of the &lt;head&gt; tag and <b>before any other script or CSS tags</b> so that it can be called by them when they load.
         </div>
 
 <pre class="code">
@@ -34,7 +34,7 @@ window.fa = window.fa || function() { (fa.queue = fa.queue || []).push(arguments
 fa('create', '{{$.Property.ID}}');
 fa('send', 'pageview');
 &lt;/script&gt;
-&lt;script async src="https://{{.Request.Host}}/analytics.js"&gt;&lt;/script&gt;
+&lt;script async src="https://{{.Request.Host}}/frequency.js"&gt;&lt;/script&gt;
 &lt;!-- Frequency Analytics --&gt;
 </pre>
 

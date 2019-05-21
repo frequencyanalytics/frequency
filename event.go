@@ -253,7 +253,7 @@ func eventFiles(propertyID string, start, end int64) []string {
 		Timestamp int64
 	}
 
-	now := time.Now()
+	now := time.Now().In(getTimezone())
 
 	sy, sm, sd := time.Unix(start, 0).Local().Date()
 	ey, em, ed := time.Unix(end, 0).Local().Date()
@@ -266,7 +266,7 @@ func eventFiles(propertyID string, start, end int64) []string {
 	var entries []*eventFileEntry
 	if err := filepath.Walk(dirname, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
-			logger.Warn(err)
+			logger.Debug(err)
 			return nil
 		}
 
@@ -311,7 +311,7 @@ func eventFiles(propertyID string, start, end int64) []string {
 }
 
 func eventFilesOld(propertyID string, start, end int64) []string {
-	now := time.Now()
+	now := time.Now().In(getTimezone())
 
 	sy, sm, sd := time.Unix(start, 0).Local().Date()
 	ey, em, ed := time.Unix(end, 0).Local().Date()

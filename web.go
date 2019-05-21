@@ -13,14 +13,20 @@ import (
 	"time"
 
 	humanize "github.com/dustin/go-humanize"
-	httprouter "github.com/julienschmidt/httprouter"
 	useragent "github.com/mssola/user_agent"
 	geoip2 "github.com/oschwald/geoip2-golang"
+
+	"github.com/crewjam/saml"
+	"github.com/crewjam/saml/samlsp"
+	"github.com/julienschmidt/httprouter"
+	"golang.org/x/net/publicsuffix"
 )
 
 var (
-	SessionCookieName = "__frequency_session"
-	geoLite2Database  = "GeoLite2-Country.mmdb"
+	SessionCookieName    = "__frequency_session"
+	SessionCookieNameSSO = "__frequency_sso_session"
+
+	geoLite2Database = "GeoLite2-Country.mmdb"
 )
 
 type Session struct {
@@ -42,12 +48,20 @@ type Web struct {
 	Request  *http.Request
 	Section  string
 	Time     time.Time
+	HTTPHost string
 	Info     Info
+	SAML     *samlsp.Middleware
+	Email    string
+	Admin    bool
 
 	// Paging
 	Page int
 
 	// Additional
+	DaysAgo7  int64
+	DaysAgo30 int64
+	DaysAgo90 int64
+
 	Property   Property
 	Properties []Property
 
@@ -139,6 +153,26 @@ func (w *Web) HTML() {
 			name, _ := ua.Browser()
 			return normalizeBrowserName(name, ua.OS())
 		},
+		"ssoprovider": func() string {
+			if samlSP == nil {
+				return ""
+			}
+			redirect, err := url.Parse(samlSP.ServiceProvider.GetSSOBindingLocation(saml.HTTPRedirectBinding))
+			if err != nil {
+				logger.Warnf("SSO redirect invalid URL: %s", err)
+				return "unknown"
+			}
+			domain, err := publicsuffix.EffectiveTLDPlusOne(redirect.Host)
+			if err != nil {
+				logger.Warnf("SSO redirect invalid URL domain: %s", err)
+				return "unknown"
+			}
+			suffix, icann := publicsuffix.PublicSuffix(domain)
+			if icann {
+				suffix = "." + suffix
+			}
+			return strings.Title(strings.TrimSuffix(domain, suffix))
+		},
 	})
 
 	for _, filename := range AssetNames() {
@@ -185,11 +219,13 @@ func WebHandler(h func(*Web), section string) httprouter.Handle {
 			template: section + ".html",
 
 			Backlink: backlink,
-			Time:     time.Now(),
+			Time:     time.Now().In(getTimezone()),
 			Version:  version,
 			Request:  r,
 			Section:  section,
 			Info:     config.FindInfo(),
+			HTTPHost: httpHost,
+			SAML:     samlSP,
 		}
 
 		var public = map[string]bool{
@@ -200,7 +236,50 @@ func WebHandler(h func(*Web), section string) httprouter.Handle {
 			"ping":      true,
 		}
 
-		if public[section] {
+		// Short-circuit signout requests so we don't create a session
+		// while trying to sign out a session.
+		if section == "signout" {
+			h(web)
+			return
+		}
+
+		// Send user to custom domain URL if one is configured.
+		// Without forcing them, so they can avoid it if there's a DNS issue, etc.
+		if domain := config.FindInfo().Domain; domain != "" {
+			if r.Host != domain {
+				if section == "index" {
+					web.Redirect("/domain")
+					return
+				}
+			}
+		}
+
+		// Has a valid session.
+		if session, _ := ValidateSession(r); session != nil {
+			web.Admin = session.Admin
+		} else if samlSP != nil {
+			// SAML auth.
+			if token := samlSP.GetAuthorizationToken(r); token != nil {
+				r = r.WithContext(samlsp.WithToken(r.Context(), token))
+
+				email := token.StandardClaims.Subject
+				if email == "" {
+					Error(w, fmt.Errorf("SAML token missing email"))
+					return
+				}
+
+				web.Email = email
+				web.Admin = true
+
+				logger.Debugf("valid SSO token, signing in session")
+				if err := web.SigninSession(true); err != nil {
+					Error(web.w, err)
+					return
+				}
+			}
+		}
+
+		if web.Admin || public[section] {
 			h(web)
 			return
 		}
@@ -210,13 +289,8 @@ func WebHandler(h func(*Web), section string) httprouter.Handle {
 			return
 		}
 
-		session, _ := ValidateSession(r)
-		if session == nil || !session.Admin {
-			logger.Errorf("auth failed")
-			web.Redirect("/signin")
-			return
-		}
-		h(web)
+		logger.Warnf("auth: sign in required")
+		web.Redirect("/signin")
 	}
 }
 
@@ -224,8 +298,13 @@ func Log(h httprouter.Handle) httprouter.Handle {
 	return func(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 		start := time.Now()
 		h(w, r, ps)
+		ip, _, _ := net.SplitHostPort(r.RemoteAddr)
+		ua := r.Header.Get("User-Agent")
+		xff := r.Header.Get("X-Forwarded-For")
+		xrealip := r.Header.Get("X-Real-IP")
 		rang := r.Header.Get("Range")
-		logger.Infof("%d %q %s %q %d ms", start.Unix(), rang, r.Method, r.RequestURI, int64(time.Since(start)/time.Millisecond))
+
+		logger.Infof("%s %q %q %q %q %q %q %s %q %d ms", start, ip, xff, xrealip, ua, rang, r.Referer(), r.Method, r.RequestURI, int64(time.Since(start)/time.Millisecond))
 	}
 }
 
@@ -272,39 +351,56 @@ func ValidateSession(r *http.Request) (*Session, error) {
 	return session, nil
 }
 
-func NewDeletionCookie() *http.Cookie {
-	return &http.Cookie{
+func (w *Web) SignoutSession() {
+	domain, _, err := net.SplitHostPort(w.r.Host)
+	if err != nil {
+		logger.Warnf("parsing Host header failed: %s", err)
+	}
+	http.SetCookie(w.w, &http.Cookie{
+		Name:     SessionCookieNameSSO,
+		Value:    "",
+		Path:     "/",
+		HttpOnly: true,
+		Secure:   !httpInsecure,
+		Domain:   domain,
+		MaxAge:   -1,
+		Expires:  time.Unix(1, 0),
+	})
+	http.SetCookie(w.w, &http.Cookie{
 		Name:     SessionCookieName,
 		Value:    "",
 		Path:     "/",
 		HttpOnly: true,
-		Secure:   true,
+		Secure:   !httpInsecure,
+		Domain:   domain,
 		MaxAge:   -1,
 		Expires:  time.Unix(1, 0),
-	}
+	})
 }
 
-func NewSessionCookie(r *http.Request) (*http.Cookie, error) {
-	expires := time.Now().Add(720 * time.Hour)
+func (w *Web) SigninSession(admin bool) error {
+	expires := time.Now().Add(12 * time.Hour)
 
-	session := Session{
-		Admin:     true,
+	encoded, err := securetoken.Encode(SessionCookieName, Session{
+		Admin:     admin,
 		NotBefore: time.Now(),
 		NotAfter:  expires,
-	}
-
-	encoded, err := securetoken.Encode(SessionCookieName, session)
+	})
 	if err != nil {
-		return nil, fmt.Errorf("auth: encoding error: %s", err)
+		return fmt.Errorf("auth: encoding error: %s", err)
 	}
-
-	cookie := &http.Cookie{
+	domain, _, err := net.SplitHostPort(w.r.Host)
+	if err != nil {
+		logger.Warnf("parsing Host header failed: %s", err)
+	}
+	http.SetCookie(w.w, &http.Cookie{
 		Name:     SessionCookieName,
 		Value:    encoded,
 		Path:     "/",
+		Domain:   domain,
 		HttpOnly: true,
-		Secure:   true,
+		Secure:   !httpInsecure,
 		Expires:  expires,
-	}
-	return cookie, nil
+	})
+	return nil
 }
