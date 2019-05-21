@@ -38,11 +38,11 @@ func (e Event) String() string {
 }
 
 func (e Event) Time() time.Time {
-	return time.Unix(e.Timestamp, 0).Local()
+	return time.Unix(e.Timestamp, 0).In(getTimezone())
 }
 
 func (e *Event) Save() {
-	timestamp := time.Unix(e.Timestamp, 0).Local()
+	timestamp := time.Unix(e.Timestamp, 0).In(getTimezone())
 
 	y, m, d := timestamp.Date()
 	unix := time.Date(y, m, d, timestamp.Hour(), 0, 0, 0, timestamp.Location()).Unix()
@@ -255,8 +255,8 @@ func eventFiles(propertyID string, start, end int64) []string {
 
 	now := time.Now().In(getTimezone())
 
-	sy, sm, sd := time.Unix(start, 0).Local().Date()
-	ey, em, ed := time.Unix(end, 0).Local().Date()
+	sy, sm, sd := time.Unix(start, 0).In(now.Location()).Date()
+	ey, em, ed := time.Unix(end, 0).In(now.Location()).Date()
 
 	startDate := time.Date(sy, sm, sd, 0, 0, 0, 0, now.Location())
 	endDate := time.Date(ey, em, ed, 0, 0, 0, 0, now.Location())
@@ -284,10 +284,13 @@ func eventFiles(propertyID string, start, end int64) []string {
 		if err != nil {
 			return nil
 		}
-		tsy, tsm, tsd := time.Unix(timestamp, 0).Local().Date()
+		tsy, tsm, tsd := time.Unix(timestamp, 0).In(now.Location()).Date()
 		tsDate := time.Date(tsy, tsm, tsd, 0, 0, 0, 0, now.Location())
 
-		if tsDate.Before(startDate) || tsDate.After(endDate) {
+		if tsDate.Before(startDate) {
+			return nil
+		}
+		if tsDate.After(endDate) {
 			return nil
 		}
 
@@ -310,11 +313,12 @@ func eventFiles(propertyID string, start, end int64) []string {
 	return files
 }
 
+/*
 func eventFilesOld(propertyID string, start, end int64) []string {
 	now := time.Now().In(getTimezone())
 
-	sy, sm, sd := time.Unix(start, 0).Local().Date()
-	ey, em, ed := time.Unix(end, 0).Local().Date()
+	sy, sm, sd := time.Unix(start, 0).In(now.Location()).Date()
+	ey, em, ed := time.Unix(end, 0).In(now.Location()).Date()
 
 	endDate := time.Date(ey, em, ed, 0, 0, 0, 0, now.Location())
 	currentDate := time.Date(sy, sm, sd, 0, 0, 0, 0, now.Location())
@@ -347,6 +351,7 @@ func eventFilesOld(propertyID string, start, end int64) []string {
 	sort.Strings(files) // oldest to newest
 	return files
 }
+*/
 
 func eventPurge(propertyID string) error {
 	if propertyID == "" {

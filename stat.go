@@ -51,8 +51,8 @@ type Stat struct {
 func NewStat(property string, start, end int64) *Stat {
 	now := time.Now().In(getTimezone())
 
-	sy, sm, sd := time.Unix(start, 0).Date()
-	ey, em, ed := time.Unix(end, 0).Date()
+	sy, sm, sd := time.Unix(start, 0).In(now.Location()).Date()
+	ey, em, ed := time.Unix(end, 0).In(now.Location()).Date()
 
 	start = time.Date(sy, sm, sd, 0, 0, 0, 0, now.Location()).Unix()
 	end = time.Date(ey, em, ed, 0, 0, 0, 0, now.Location()).Unix()
@@ -276,13 +276,15 @@ func (p StatPagesChart) Less(i, j int) bool {
 func (s *Stat) PagesChart(path string) StatPagesChart {
 	th := make(map[int64]int)
 
+	loc := getTimezone()
+
 	eventWalk(s.Property, s.Start, s.End, func(e *Event) {
 		if path != "" {
 			if e.Path != path {
 				return
 			}
 		}
-		ts := time.Unix(e.Timestamp, 0)
+		ts := time.Unix(e.Timestamp, 0).In(loc)
 		y, m, d := ts.Date()
 		key := time.Date(y, m, d, ts.Hour(), 0, 0, 0, ts.Location()).Unix()
 		th[key] += 1
@@ -290,7 +292,7 @@ func (s *Stat) PagesChart(path string) StatPagesChart {
 
 	var pages StatPagesChart
 	for t, hits := range th {
-		pages = append(pages, &StatPagesChartEntry{time.Unix(t, 0), hits})
+		pages = append(pages, &StatPagesChartEntry{time.Unix(t, 0).In(loc), hits})
 	}
 	sort.Sort(pages)
 	return pages
@@ -339,6 +341,8 @@ func (v StatVisitorsChart) Less(i, j int) bool {
 func (s *Stat) VisitorsChart() StatVisitorsChart {
 	tc := make(map[int64]map[string]int)
 
+	loc := getTimezone()
+
 	eventWalk(s.Property, s.Start, s.End, func(e *Event) {
 		if e.UserAgent == "" {
 			return
@@ -347,7 +351,7 @@ func (s *Stat) VisitorsChart() StatVisitorsChart {
 			return
 		}
 
-		ts := time.Unix(e.Timestamp, 0)
+		ts := time.Unix(e.Timestamp, 0).In(loc)
 		y, m, d := ts.Date()
 		tkey := time.Date(y, m, d, 0, 0, 0, 0, ts.Location()).Unix()
 		if _, ok := tc[tkey]; !ok {
@@ -359,7 +363,7 @@ func (s *Stat) VisitorsChart() StatVisitorsChart {
 
 	var visitors StatVisitorsChart
 	for t, v := range tc {
-		visitors = append(visitors, &StatVisitorsChartEntry{time.Unix(t, 0), len(v)})
+		visitors = append(visitors, &StatVisitorsChartEntry{time.Unix(t, 0).In(loc), len(v)})
 	}
 	sort.Sort(visitors)
 	return visitors

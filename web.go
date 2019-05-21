@@ -108,7 +108,7 @@ func (w *Web) HTML() {
 			return fmt.Sprintf("%.2f GB", float64(n)/1024/1024/1024)
 		},
 		"date": func(t time.Time) string {
-			return t.Format(time.UnixDate)
+			return t.In(getTimezone()).Format(time.UnixDate)
 		},
 		"time": humanize.Time,
 		"jsfloat64": func(n float64) template.JS {
@@ -127,7 +127,7 @@ func (w *Web) HTML() {
 			return s
 		},
 		"timestamp": func(n int64) string {
-			t := time.Unix(n, 0).Local()
+			t := time.Unix(n, 0).In(getTimezone())
 			return t.Format("2006/01/02")
 		},
 		"ip2country": func(ipAddress string) string {
